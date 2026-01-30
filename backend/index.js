@@ -22,7 +22,22 @@ app.get("/", (req, res) => {
 app.use("/api/auth", require("./routes/auth"));
 app.use("/api/notes", require("./routes/Notes"));
 
+// Reminders / Notifications
+app.use('/api/reminders', require('./routes/reminders'));
+
 const PORT = 4000;
-app.listen(PORT, () => {
-    console.log(`Backend running on port ${PORT}`);
-});
+if (require.main === module) {
+    const server = app.listen(PORT, () => {
+        console.log(`Backend running on port ${PORT}`);
+    });
+
+    // Start reminder worker (background scheduler)
+    try {
+        const { startReminderWorker } = require('./utils/reminderWorker');
+        startReminderWorker();
+    } catch (err) {
+        console.warn('Reminder worker not started:', err.message);
+    }
+}
+
+module.exports = app;

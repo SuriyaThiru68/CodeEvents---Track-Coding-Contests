@@ -8,7 +8,8 @@ const noteSchema = new mongoose.Schema(
             required: true
         },
         title: { type: String, required: true },
-        content: { type: String, required: true }
+        content: { type: String, required: true },
+        platform: { type: String, required: false, default: "General" }
     },
     { timestamps: true }
 );

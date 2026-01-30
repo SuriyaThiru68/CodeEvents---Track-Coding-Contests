@@ -181,12 +181,68 @@ const formatDuration = (seconds) => {
 };
 
 
-export const saveNote = (note) =>
-    fetch("http://localhost:4000/api/notes", {
+export const saveNote = (note) => {
+    const token = localStorage.getItem("token");
+    console.log("Saving note with token:", token);
+    return fetch("/api/notes", {
         method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(note)
+    });
+};
+
+export const fetchNotes = () =>
+    fetch("/api/notes", {
+        method: "GET",
+        headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    }).then(res => res.json());
+
+export const deleteNoteFromDb = (id) =>
+    fetch(`/api/notes/${id}`, {
+        method: "DELETE",
+        headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`
+        }
+    });
+
+export const updateNote = (id, note) =>
+    fetch(`/api/notes/${id}`, {
+        method: "PUT",
         headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${localStorage.getItem("token")}`
         },
         body: JSON.stringify(note)
     });
+
+export const sendReminder = (contest) => {
+    const token = localStorage.getItem('token');
+    const email = JSON.parse(localStorage.getItem('user') || 'null')?.email || undefined;
+    return fetch('/api/reminders/send', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ email, contest })
+    }).then(res => res.json());
+};
+
+export const scheduleReminder = (contest, minutesBefore = 10) => {
+    const token = localStorage.getItem('token');
+    const email = JSON.parse(localStorage.getItem('user') || 'null')?.email || undefined;
+    return fetch('/api/reminders/schedule', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ email, contest, minutesBefore })
+    }).then(res => res.json());
+};

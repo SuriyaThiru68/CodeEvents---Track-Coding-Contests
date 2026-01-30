@@ -27,7 +27,11 @@ export const useStore = create(
             missedContests: [],
 
             notes: [],
+            setNotes: (notes) => set({ notes }),
             addNote: (note) => set((state) => ({ notes: [note, ...state.notes] })),
+            updateNoteInStore: (id, updatedNote) => set((state) => ({
+                notes: state.notes.map(n => n.id === id ? { ...n, ...updatedNote } : n)
+            })),
             deleteNote: (id) => set((state) => ({ notes: state.notes.filter(n => n.id !== id) })),
 
             snippets: [
@@ -103,6 +107,16 @@ export const useStore = create(
             updateProfile: (platform, data) => set((state) => ({
                 userProfiles: { ...state.userProfiles, [platform]: { ...state.userProfiles[platform], ...data } }
             })),
+
+            // Theme (light / dark)
+            theme: 'light',
+            toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
+            setTheme: (t) => set({ theme: t }),
+
+            // Email digest preference
+            emailDigest: true,
+            toggleEmailDigest: () => set((state) => ({ emailDigest: !state.emailDigest })),
+            setEmailDigest: (v) => set({ emailDigest: v }),
             addSnippet: (snippet) => set((state) => ({ snippets: [snippet, ...state.snippets] })),
             deleteSnippet: (id) => set((state) => ({ snippets: state.snippets.filter(s => s.id !== id) })),
 

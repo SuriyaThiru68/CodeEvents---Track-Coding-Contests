@@ -154,7 +154,7 @@ export default function CalendarPage() {
                                                     href={contest.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex-1 bg-red-500 text-[#fff] py-3 font-black uppercase tracking-widest text-xs text-center border-4 border-[#000] hover:bg-[#000] transition-colors"
+                                                    className="flex-1 bg-[#2563eb] text-[#fff] py-3 font-black uppercase tracking-widest text-xs text-center border-4 border-[#000] hover:bg-[#1e40af] transition-colors"
                                                 >
                                                     Register Now
                                                 </a>

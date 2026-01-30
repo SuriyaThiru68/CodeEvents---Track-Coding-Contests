@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { Search, Filter, Calendar, Bell, ExternalLink, SlidersHorizontal, Loader2 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { toast } from 'sonner';
+import { scheduleReminder } from '../services/api';
 
 export default function Upcoming() {
     const { contests, registerContest, refreshContests, isLoading } = useStore();
@@ -84,7 +85,7 @@ export default function Upcoming() {
                                         )}
                                     </div>
 
-                                    <h3 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-red-500 transition-colors">
+                                    <h3 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-[#2563eb] transition-colors">
                                         {contest.name}
                                     </h3>
 
@@ -104,7 +105,7 @@ export default function Upcoming() {
 
                                 <div className="flex flex-col gap-2 pt-6 border-t-2 border-[#000]/10">
                                     {contest.registered ? (
-                                        <button className="w-full border-4 border-red-500 text-red-500 py-3 font-black uppercase tracking-widest text-xs hover:bg-red-500 hover:text-[#fff] transition-colors">
+                                        <button className="w-full border-4 border-[#2563eb] text-[#2563eb] py-3 font-black uppercase tracking-widest text-xs hover:bg-[#2563eb] hover:text-[#fff] transition-colors">
                                             Unregister
                                         </button>
                                     ) : (
@@ -118,12 +119,17 @@ export default function Upcoming() {
                                     <button
                                         onClick={() => {
                                             const user = useStore.getState().user;
+                                            if (!user?.email) {
+                                                toast.error('Please set your email in Profile or log in to schedule reminders');
+                                                return;
+                                            }
+                                            const promise = scheduleReminder(contest, 10);
                                             toast.promise(
-                                                new Promise((resolve) => setTimeout(resolve, 1500)),
+                                                promise,
                                                 {
-                                                    loading: 'Generating Protocol...',
-                                                    success: `System: Reminder sent to ${user?.email || 'authenticated email'}`,
-                                                    error: 'Transmission Failure',
+                                                    loading: 'Scheduling reminder...',
+                                                    success: (res) => res.scheduledAt ? `System: Reminder scheduled for ${new Date(res.scheduledAt).toLocaleString()}` : (`System: ${res.msg || 'Reminder scheduled'}`),
+                                                    error: (err) => err?.message || 'Scheduling failed',
                                                 }
                                             );
                                         }}

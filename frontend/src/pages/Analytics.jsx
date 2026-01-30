@@ -48,7 +48,7 @@ export default function Analytics() {
                                 <div className="w-3 h-3 bg-[#000]" /> Contests
                             </div>
                             <div className="flex items-center gap-2 text-[10px] font-black uppercase">
-                                <div className="w-3 h-3 bg-red-500" /> Problems
+                                <div className="w-3 h-3 bg-[#2563eb]" /> Problems
                             </div>
                         </div>
                     </header>
@@ -70,7 +70,7 @@ export default function Analytics() {
                                     itemStyle={{ color: '#fff', textTransform: 'uppercase', fontSize: '10px', fontWeight: 'bold' }}
                                 />
                                 <Area type="monotone" dataKey="participation" stroke="#000" strokeWidth={4} fillOpacity={1} fill="url(#colorPart)" />
-                                <Area type="monotone" dataKey="problems" stroke="#ef4444" strokeWidth={4} fillOpacity={0} />
+                                <Area type="monotone" dataKey="problems" stroke="#2563eb" strokeWidth={4} fillOpacity={0} />
                             </AreaChart>
                         </ResponsiveContainer>
                     </div>
@@ -121,7 +121,7 @@ export default function Analytics() {
                         <p className="text-sm font-bold opacity-50 uppercase tracking-widest">Consistency tracking over the last 12 months</p>
                     </div>
                     <div className="flex gap-1">
-                        {[1, 2, 3, 4, 5, 6, 7].map(i => <div key={i} className={`w-4 h-4 border border-[#fff]/20 ${i > 4 ? 'bg-red-500' : 'bg-[#fff]/10'}`} />)}
+                        {[1, 2, 3, 4, 5, 6, 7].map(i => <div key={i} className={`w-4 h-4 border border-[#fff]/20 ${i > 4 ? 'bg-[#2563eb]' : 'bg-[#fff]/10'}`} />)}
                     </div>
                 </div>
 
@@ -129,7 +129,7 @@ export default function Analytics() {
                     {Array.from({ length: 48 }).map((_, i) => (
                         <div
                             key={i}
-                            className={`aspect-square border-2 border-[#fff]/5 group relative hover:border-[#fff] transition-colors ${i % 7 === 0 ? 'bg-red-500' : i % 5 === 0 ? 'bg-red-900' : 'bg-[#fff]/10'
+                            className={`aspect-square border-2 border-[#fff]/5 group relative hover:border-[#fff] transition-colors ${i % 7 === 0 ? 'bg-[#2563eb]' : i % 5 === 0 ? 'bg-[#1e40af]' : 'bg-[#fff]/10'
                                 }`}
                         >
                             <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 bg-[#fff] text-[#000] px-2 py-1 text-[8px] font-black uppercase whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity">

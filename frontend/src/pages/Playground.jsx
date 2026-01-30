@@ -135,7 +135,7 @@ export default function Playground() {
                             <div className="flex-1" />
                             <button
                                 onClick={runCode}
-                                className={`w-16 h-16 border-4 border-[#000] flex items-center justify-center transition-all ${isRunning ? 'bg-gray-100' : 'bg-red-500 text-[#fff] hover:scale-110 shadow-[4px_4px_0px_0px_#000]'}`}
+                                className={`w-16 h-16 border-4 border-[#000] flex items-center justify-center transition-all ${isRunning ? 'bg-gray-100' : 'bg-[#2563eb] text-[#fff] hover:scale-110 shadow-[4px_4px_0px_0px_#000]'}`}
                             >
                                 <Play size={24} fill="currentColor" />
                             </button>
@@ -146,7 +146,7 @@ export default function Playground() {
                             <div className="bg-[#000] text-[#fff] px-6 py-3 flex justify-between items-center">
                                 <span className="text-[10px] font-black uppercase tracking-widest">Main.js - Execution Buffer</span>
                                 <div className="flex gap-1">
-                                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                                    <div className="w-2 h-2 rounded-full bg-[#2563eb]" />
                                     <div className="w-2 h-2 rounded-full bg-yellow-400" />
                                     <div className="w-2 h-2 rounded-full bg-green-500" />
                                 </div>
@@ -154,7 +154,7 @@ export default function Playground() {
                             <textarea
                                 value={code}
                                 onChange={(e) => setCode(e.target.value)}
-                                className="flex-1 p-8 font-mono text-lg bg-transparent border-none focus:outline-none resize-none selection:bg-red-500 selection:text-white"
+                                className="flex-1 p-8 font-mono text-lg bg-transparent border-none focus:outline-none resize-none selection:bg-[#2563eb] selection:text-white"
                                 spellCheck="false"
                             />
                         </div>
@@ -162,12 +162,12 @@ export default function Playground() {
                         {/* Console Output */}
                         <div className="lg:col-span-4 border-4 border-[#000] bg-[#000] text-[#fff] flex flex-col shadow-[8px_8px_0px_0px_#000]">
                             <div className="border-b-2 border-[#fff]/10 px-6 py-4 flex items-center gap-3">
-                                <TerminalIcon size={18} className="text-red-500" />
+                                <TerminalIcon size={18} className="text-[#2563eb]" />
                                 <span className="text-[10px] font-black uppercase tracking-widest italic">Standard Out</span>
                             </div>
                             <div className="flex-1 p-6 font-mono text-sm overflow-y-auto space-y-2">
                                 {output.map((line, i) => (
-                                    <div key={i} className={`flex gap-3 ${line.type === 'error' ? 'text-red-400' : line.type === 'warn' ? 'text-yellow-400' : 'text-green-400'}`}>
+                                    <div key={i} className={`flex gap-3 ${line.type === 'error' ? 'text-[#60a5fa]' : line.type === 'warn' ? 'text-yellow-400' : 'text-green-400'}`}>
                                         <span className="opacity-20">{i + 1}</span>
                                         <span className="opacity-40">{line.type === 'log' ? '>>' : '!!'}</span>
                                         <span className="flex-1">{line.content}</span>
@@ -210,18 +210,18 @@ export default function Playground() {
                                     <div className="p-8 flex-1">
                                         <div className="flex justify-between items-start mb-6">
                                             <span className="bg-[#000] text-[#fff] px-3 py-1 text-[10px] font-black uppercase tracking-widest italic">{snippet.category}</span>
-                                            <button onClick={() => deleteSnippet(snippet.id)} className="opacity-20 hover:opacity-100 hover:text-red-500 transition-opacity">
+                                            <button onClick={() => deleteSnippet(snippet.id)} className="opacity-20 hover:opacity-100 hover:text-[#2563eb] transition-opacity">
                                                 <Trash2 size={18} />
                                             </button>
                                         </div>
-                                        <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 group-hover:text-red-500 transition-colors underline decoration-4 underline-offset-4">{snippet.title}</h3>
+                                        <h3 className="text-3xl font-black uppercase tracking-tighter mb-4 group-hover:text-[#2563eb] transition-colors underline decoration-4 underline-offset-4">{snippet.title}</h3>
                                         <pre className="bg-gray-50 border-2 border-[#000] p-4 font-mono text-[10px] overflow-hidden truncate">
                                             {snippet.code}
                                         </pre>
                                     </div>
                                     <button
                                         onClick={() => { setCode(snippet.code); setActiveTab('editor'); toast.success(`Loaded ${snippet.title}`); }}
-                                        className="w-full bg-[#000] text-[#fff] py-4 font-black uppercase tracking-widest text-xs hover:bg-red-500 transition-colors border-t-4 border-[#000]"
+                                        className="w-full bg-[#000] text-[#fff] py-4 font-black uppercase tracking-widest text-xs hover:bg-[#2563eb] transition-colors border-t-4 border-[#000]"
                                     >
                                         Load into Neural_Net
                                     </button>

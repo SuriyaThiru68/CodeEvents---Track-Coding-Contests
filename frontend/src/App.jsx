@@ -35,14 +35,14 @@ export default function App() {
                 position="top-right"
                 expand={true}
                 richColors
+                className="font-sans"
                 toastOptions={{
+                    className: 'font-sans',
                     style: {
-                        borderRadius: '0px',
-                        border: '4px solid #000',
-                        fontFamily: 'inherit',
-                        fontWeight: '900',
-                        textTransform: 'uppercase',
-                        letterSpacing: '0.05em',
+                        borderRadius: '8px',
+                        border: '1px solid #E5E7EB',
+                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
+                        fontSize: '13px',
                     }
                 }}
             />

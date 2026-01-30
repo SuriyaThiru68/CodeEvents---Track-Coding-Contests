@@ -23,13 +23,18 @@ import { useStore } from '../store/useStore';
 const SidebarItem = ({ icon: Icon, label, path, collapsed, active }) => (
     <Link to={path}>
         <motion.div
-            whileHover={{ backgroundColor: '#000', color: '#fff' }}
-            className={`flex items-center gap-4 p-4 cursor-pointer transition-colors border-b-2 border-[#000] ${active ? 'bg-[#000] text-[#fff]' : 'bg-[#fff] text-[#000]'
+            className={`flex items-center gap-4 p-4 cursor-pointer transition-all duration-300 relative group ${active ? 'text-black' : 'text-gray-400 hover:text-black'
                 }`}
         >
-            <Icon size={24} />
+            <Icon size={20} strokeWidth={1.5} />
             {!collapsed && (
-                <span className="font-black uppercase tracking-tighter text-sm">{label}</span>
+                <span className="font-medium tracking-wide text-xs uppercase font-sans relative z-10">{label}</span>
+            )}
+            {active && !collapsed && (
+                <motion.div
+                    layoutId="active-pill"
+                    className="absolute left-0 w-1 h-6 bg-black rounded-r-full"
+                />
             )}
         </motion.div>
     </Link>
@@ -55,17 +60,17 @@ const Sidebar = () => {
 
     return (
         <motion.aside
-            animate={{ width: collapsed ? 80 : 260 }}
-            className="fixed left-0 top-0 h-screen border-r-4 border-[#000] bg-[#fff] z-[70] hidden md:flex flex-col"
+            animate={{ width: collapsed ? 80 : 280 }}
+            className="fixed left-0 top-0 h-screen border-r border-gray-100 bg-white z-[70] hidden md:flex flex-col shadow-[4px_0_24px_rgba(0,0,0,0.02)]"
         >
-            <div className="p-6 border-b-4 border-[#000] flex justify-between items-center bg-[#000] text-[#fff]">
-                {!collapsed && <span className="font-black text-2xl tracking-tighter italic font-serif">CE_</span>}
-                <button onClick={() => setCollapsed(!collapsed)} className="hover:scale-110 transition-transform">
-                    {collapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
+            <div className="p-8 flex justify-between items-center bg-white">
+                {!collapsed && <span className="font-serif text-2xl tracking-tight text-black">CodeEvents<span className="text-xs font-sans tracking-widest ml-1 text-gray-400">Dashboard</span></span>}
+                <button onClick={() => setCollapsed(!collapsed)} className="text-gray-400 hover:text-black transition-colors p-2 rounded-full hover:bg-gray-50">
+                    {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
                 </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto">
+            <div className="flex-1 overflow-y-auto py-4 space-y-1">
                 {menuItems.map((item) => (
                     <SidebarItem
                         key={item.path}
@@ -76,7 +81,7 @@ const Sidebar = () => {
                 ))}
             </div>
 
-            <div className="mt-auto border-t-4 border-[#000]">
+            <div className="mt-auto p-4 border-t border-gray-50">
                 <SidebarItem
                     icon={User}
                     label="My Profile"
@@ -86,10 +91,10 @@ const Sidebar = () => {
                 />
                 <button
                     onClick={() => { setUser(null); navigate('/login'); }}
-                    className="w-full flex items-center gap-4 p-4 cursor-pointer transition-colors bg-red-500 text-[#fff] hover:bg-[#000] group"
+                    className="w-full flex items-center gap-4 p-4 cursor-pointer text-gray-400 hover:text-[#2563eb] transition-colors group"
                 >
-                    <LogOut size={24} className="group-hover:rotate-12 transition-transform" />
-                    {!collapsed && <span className="font-black uppercase tracking-tighter text-sm">Kill System</span>}
+                    <LogOut size={20} strokeWidth={1.5} className="group-hover:translate-x-1 transition-transform" />
+                    {!collapsed && <span className="font-medium uppercase tracking-wide text-xs">Sign Out</span>}
                 </button>
             </div>
         </motion.aside>
@@ -99,41 +104,37 @@ const Sidebar = () => {
 export const Layout = ({ children }) => {
     const location = useLocation();
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register';
+    const theme = useStore(state => state.theme);
+    const profileImage = useStore(state => state.profileImage);
+    const user = useStore(state => state.user);
 
     if (isAuthPage) return children;
 
     return (
-        <div className="min-h-screen bg-[#f5f5f7] text-[#000] font-sans">
+        <div className={`min-h-screen text-gray-900 font-sans selection:bg-black selection:text-white ${theme === 'dark' ? 'dark' : ''}`}>
             <Sidebar />
-            <main className="md:ml-[260px] md:pl-4 transition-all duration-300 min-h-screen relative">
-                {/* Grid Overlay for Background */}
-                <div className="fixed inset-0 pointer-events-none z-0 opacity-10">
-                    <div className="h-full w-full grid grid-cols-4 border-[#000] border-x">
-                        <div className="border-r border-[#000]" />
-                        <div className="border-r border-[#000]" />
-                        <div className="border-r border-[#000]" />
-                    </div>
-                </div>
+            <main className={`md:ml-[280px] transition-all duration-300 min-h-screen relative ${theme === 'dark' ? 'bg-[#071226] text-gray-100' : 'bg-white'}`}>
 
-                <header className="sticky top-0 z-50 bg-[#f5f5f7]/80 backdrop-blur-md border-b-4 border-[#000] p-6 flex justify-between items-center">
-                    <div className="font-black uppercase italic tracking-tighter md:hidden">CodeEvents_</div>
-                    <div className="hidden md:block" />
-                    <div className="flex items-center gap-6">
+                <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-xl border-b border-gray-50 px-8 py-5 flex justify-between items-center">
+                    <div className="font-serif text-xl tracking-tight md:hidden">CodeEvents</div>
+                    <div className="hidden md:block text-xs font-medium text-gray-400 uppercase tracking-widest">{location.pathname.replace('/', '')}</div>
+
+                    <div className="flex items-center gap-8">
                         <button
-                            onClick={() => toast.info('System Check: All modules are operational. No new alerts.')}
-                            className="relative hover:scale-110 transition-transform"
+                            onClick={() => toast.info('System operational')}
+                            className="relative hover:text-black text-gray-400 transition-colors"
                         >
-                            <Bell size={24} />
-                            <span className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full border-2 border-[#fff]" />
+                            <Bell size={20} strokeWidth={1.5} />
+                            <span className="absolute -top-1 -right-1 w-2 h-2 bg-[#2563eb] rounded-full ring-2 ring-white" />
                         </button>
                         <Link
                             to="/profile"
-                            className="w-10 h-10 border-2 border-[#000] bg-yellow-400 flex items-center justify-center font-black cursor-pointer hover:scale-105 transition-transform overflow-hidden"
+                            className="w-10 h-10 rounded-full bg-gray-100 border border-gray-200 flex items-center justify-center overflow-hidden hover:border-gray-300 transition-colors"
                         >
-                            {useStore.getState().profileImage ? (
-                                <img src={useStore.getState().profileImage} alt="Profile" className="w-full h-full object-cover" />
+                            {profileImage ? (
+                                <img src={profileImage} alt="Profile" className="w-full h-full object-cover" />
                             ) : (
-                                useStore.getState().user?.username?.[0]?.toUpperCase() || 'U'
+                                <span className="text-xs font-medium text-gray-500">{user?.username?.[0]?.toUpperCase() || 'U'}</span>
                             )}
                         </Link>
                     </div>
@@ -142,10 +143,10 @@ export const Layout = ({ children }) => {
 
                 <motion.div
                     key={location.pathname}
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4 }}
-                    className="relative z-10 p-6 md:p-12 pb-24"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    className="relative z-10"
                 >
                     {children}
                 </motion.div>

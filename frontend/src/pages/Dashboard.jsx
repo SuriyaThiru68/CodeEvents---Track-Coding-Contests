@@ -23,14 +23,14 @@ export default function Dashboard() {
         { label: 'Upcoming Contests', value: contests.length, icon: Calendar, color: 'bg-blue-50' },
         { label: 'Total Solved', value: totalSolved, icon: Target, color: 'bg-green-50' },
         { label: 'Attended Events', value: attendedContests.length, icon: CheckCircle2, color: 'bg-yellow-50' },
-        { label: 'Missed Battles', value: missedContests.length, icon: Clock, color: 'bg-red-50' },
+        { label: 'Missed Battles', value: missedContests.length, icon: Clock, color: 'bg-[#eff6ff]' },
     ];
 
     return (
         <div className="space-y-12">
             <header>
                 <h1 className="text-7xl font-black uppercase tracking-tighter italic mb-4">Command_Center</h1>
-                <p className="text-xl font-bold opacity-80 uppercase tracking-widest leading-none text-red-600">Your coding career at a glance</p>
+                <p className="text-xl font-bold opacity-80 uppercase tracking-widest leading-none text-[#2563eb]">Your coding career at a glance</p>
             </header>
 
             {/* Stats Overview */}
@@ -90,7 +90,7 @@ export default function Dashboard() {
                                         <div>
                                             <div className="flex gap-2 mb-1">
                                                 <span className="text-[10px] font-black uppercase border border-current px-2 py-0.5">{contest.platform}</span>
-                                                <span className="text-[10px] font-black uppercase border border-current px-2 py-0.5 bg-red-500 text-[#fff] border-red-500">{contest.difficulty}</span>
+                                                <span className="text-[10px] font-black uppercase border border-current px-2 py-0.5 bg-[#2563eb] text-[#fff] border-[#2563eb]">{contest.difficulty}</span>
                                             </div>
                                             <h3 className="text-2xl font-black uppercase tracking-tight">{contest.name}</h3>
                                             <p className="text-xs font-bold opacity-70 uppercase tracking-widest mt-1">
