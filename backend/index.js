@@ -20,7 +20,7 @@ app.get("/", (req, res) => {
 
 // Routes
 app.use("/api/auth", require("./routes/auth"));
-app.use("/api/notes", require("./routes/Notes"));
+app.use("/api/notes", require("./routes/notes"));
 
 // Reminders / Notifications
 app.use('/api/reminders', require('./routes/reminders'));
