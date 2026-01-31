@@ -14,7 +14,7 @@ export default function Login() {
     const setUser = useStore((state) => state.setUser);
 
     // 🔥 Backend URL (works locally & in production)
-    const API_URL = import.meta.env.VITE_API_URL;
+    const API_URL = "https://codeevents-tracking.onrender.com";
 
     const handleSubmit = async (e) => {
         e.preventDefault();
