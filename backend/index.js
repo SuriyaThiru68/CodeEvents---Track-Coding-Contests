@@ -26,7 +26,7 @@ app.use("/api/notes", require("./routes/notes"));
 // Reminders / Notifications
 app.use('/api/reminders', require('./routes/reminders'));
 
-const PORT = 4000;
+const PORT = process.env.PORT || 4000;
 if (require.main === module) {
     const server = app.listen(PORT, () => {
         console.log(`Backend running on port ${PORT}`);

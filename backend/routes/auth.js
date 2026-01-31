@@ -5,29 +5,36 @@ const User = require("../models/User");
 
 const router = express.Router();
 
-// REGISTER
+/* =========================
+   REGISTER
+========================= */
 router.post("/register", async (req, res) => {
     try {
-        const { name, email, password } = req.body;
-        console.log("Registration attempt for:", email);
+        const { name, email, password } = req.body || {};
+
+        console.log("REGISTER:", email);
 
         // Validation
         if (!name || !email || !password) {
             return res.status(400).json({ msg: "Please enter all fields" });
         }
 
-        // Check for existing user
+        // Check existing user
         const existingUser = await User.findOne({ email });
         if (existingUser) {
-            console.log("User already exists:", email);
             return res.status(400).json({ msg: "User already exists" });
         }
 
-        const hashed = await bcrypt.hash(password, 10);
-        const newUser = await User.create({ name, email, password: hashed });
-        console.log("User created successfully:", newUser.email);
+        // Hash password
+        const hashedPassword = await bcrypt.hash(password, 10);
 
-        res.json({
+        const newUser = await User.create({
+            name,
+            email,
+            password: hashedPassword
+        });
+
+        return res.status(201).json({
             message: "User registered successfully",
             user: {
                 id: newUser._id.toString(),
@@ -37,43 +44,37 @@ router.post("/register", async (req, res) => {
         });
     } catch (err) {
         console.error("REGISTER ERROR:", err);
-        res.status(500).json({ error: err.message, stack: err.stack });
+        return res.status(500).json({ msg: "Server error" });
     }
 });
 
-// LOGIN
+/* =========================
+   LOGIN
+========================= */
 router.post("/login", async (req, res) => {
     try {
-        const { email, password } = req.body;
-        console.log("Login attempt for:", email);
+        const { email, password } = req.body || {};
+
+        console.log("LOGIN:", email);
 
         // Validation
         if (!email || !password) {
-            console.log("Missing fields");
             return res.status(400).json({ msg: "Please enter all fields" });
         }
 
         const user = await User.findOne({ email });
-        console.log("User found:", user ? "Yes" : "No");
-
         if (!user) {
-            console.log("User not found in DB");
             return res.status(400).json({ msg: "User does not exist" });
         }
 
-        console.log("Checking password...");
         const isMatch = await bcrypt.compare(password, user.password);
-        console.log("Password match:", isMatch);
-
         if (!isMatch) {
-            console.log("Invalid credentials");
             return res.status(400).json({ msg: "Invalid credentials" });
         }
 
-        console.log("Signing JWT...");
         if (!process.env.JWT_SECRET) {
-            console.error("JWT_SECRET is missing from environment variables!");
-            throw new Error("Internal Server Error: JWT_SECRET is missing");
+            console.error("JWT_SECRET missing");
+            return res.status(500).json({ msg: "Server configuration error" });
         }
 
         const token = jwt.sign(
@@ -82,8 +83,7 @@ router.post("/login", async (req, res) => {
             { expiresIn: "1d" }
         );
 
-        console.log("Login successful");
-        res.json({
+        return res.json({
             token,
             user: {
                 id: user._id.toString(),
@@ -93,8 +93,8 @@ router.post("/login", async (req, res) => {
         });
     } catch (err) {
         console.error("LOGIN ERROR:", err);
-        res.status(500).json({ error: err.message, stack: err.stack });
+        return res.status(500).json({ msg: "Server error" });
     }
 });
 
-module.exports = router; // 🔥 THIS LINE IS REQUIRED
+module.exports = router;
