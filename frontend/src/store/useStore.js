@@ -108,11 +108,6 @@ export const useStore = create(
                 userProfiles: { ...state.userProfiles, [platform]: { ...state.userProfiles[platform], ...data } }
             })),
 
-            // Theme (light / dark)
-            theme: 'light',
-            toggleTheme: () => set((state) => ({ theme: state.theme === 'dark' ? 'light' : 'dark' })),
-            setTheme: (t) => set({ theme: t }),
-
             // Email digest preference
             emailDigest: true,
             toggleEmailDigest: () => set((state) => ({ emailDigest: !state.emailDigest })),

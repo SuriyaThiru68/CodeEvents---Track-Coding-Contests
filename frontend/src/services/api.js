@@ -9,34 +9,49 @@ const ATCODER_API = 'https://kenkoooo.com/atcoder/atcoder-api/v3/user/info?user=
 const CLIST_API_URL = 'https://clist.by/api/v4/contest/';
 const CLIST_KEY = 'ApiKey alighter:11de134ba4e27ba11733cbefc077f4183eaf08f8';
 
-// Resource IDs or substrings for filtering
+const BACKEND_URL = 'https://codeevents-tracking.onrender.com';
+
 const ALLOWED_RESOURCES = [
     'leetcode.com',
     'codechef.com',
     'codeforces.com',
     'atcoder.jp',
-    'basecamp.com',
-    'naukri.com'
+    'codingninjas.com',
+    'hackerrank.com',
+    'basecamp.com'
 ];
 
 export const fetchContests = async () => {
     try {
         const resourceFilter = ALLOWED_RESOURCES.join(',');
-        const response = await fetch(`${CLIST_API_URL}?upcoming=true&order_by=start&limit=200&resource__name__in=${resourceFilter}`, {
-            headers: {
-                'Authorization': CLIST_KEY
-            }
+        console.log('Fetching contests with filter:', resourceFilter);
+        let response = await fetch(`${CLIST_API_URL}?upcoming=true&order_by=start&limit=200&host__in=${resourceFilter}`, {
+            headers: { 'Authorization': CLIST_KEY }
         });
 
-        if (!response.ok) throw new Error('Network response was not ok');
+        // Fallback if host filter causes 400
+        if (!response.ok && response.status === 400) {
+            console.warn('Host filter failed, falling back to all upcoming contests');
+            response = await fetch(`${CLIST_API_URL}?upcoming=true&order_by=start&limit=200`, {
+                headers: { 'Authorization': CLIST_KEY }
+            });
+        }
+
+        if (!response.ok) {
+            console.error('Clist API error:', response.status, response.statusText);
+            throw new Error('Network response was not ok');
+        }
         const data = await response.json();
+        console.log('Clist data received:', data.objects?.length || 0, 'items');
+        if (data.objects?.length > 0) {
+            console.log('First contest structure sample:', JSON.stringify(data.objects[0], null, 2));
+        }
 
         return data.objects
-            .filter(c => isEnglish(c.event))
             .map((c, index) => ({
                 id: c.id || index,
                 name: c.event,
-                platform: normalizePlatform(c.resource),
+                platform: normalizePlatform(c.host || c.resource?.name || c.resource || 'Unknown'),
                 url: c.href,
                 date: c.start,
                 end: c.end,
@@ -51,10 +66,8 @@ export const fetchContests = async () => {
 };
 
 const isEnglish = (text) => {
-    // Regex to detect non-Latin/non-standard characters
-    // This allows common ASCII, numbers, and basic punctuation but filters out 
-    // Cyrillic, Kanji/Kana, etc.
-    return !/[^\u0000-\u007F]+/.test(text);
+    // Permissive check to allow special characters and non-ASCII dashes used in contest names
+    return true;
 };
 
 
@@ -64,8 +77,8 @@ const normalizePlatform = (resource) => {
     if (r.includes('leetcode')) return 'LeetCode';
     if (r.includes('atcoder')) return 'AtCoder';
     if (r.includes('codechef')) return 'CodeChef';
-    if (r.includes('basecamp')) return 'Basecamp';
-    if (r.includes('naukri')) return 'Naukri';
+    if (r.includes('codingninjas')) return 'CodingNinjas';
+    if (r.includes('hackerrank')) return 'HackerRank';
     return resource.split('.')[0];
 };
 
@@ -184,7 +197,7 @@ const formatDuration = (seconds) => {
 export const saveNote = (note) => {
     const token = localStorage.getItem("token");
     console.log("Saving note with token:", token);
-    return fetch("/api/notes", {
+    return fetch(`${BACKEND_URL}/api/notes`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -195,7 +208,7 @@ export const saveNote = (note) => {
 };
 
 export const fetchNotes = () =>
-    fetch("/api/notes", {
+    fetch(`${BACKEND_URL}/api/notes`, {
         method: "GET",
         headers: {
             "Content-Type": "application/json",
@@ -204,7 +217,7 @@ export const fetchNotes = () =>
     }).then(res => res.json());
 
 export const deleteNoteFromDb = (id) =>
-    fetch(`/api/notes/${id}`, {
+    fetch(`${BACKEND_URL}/api/notes/${id}`, {
         method: "DELETE",
         headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`
@@ -212,7 +225,7 @@ export const deleteNoteFromDb = (id) =>
     });
 
 export const updateNote = (id, note) =>
-    fetch(`/api/notes/${id}`, {
+    fetch(`${BACKEND_URL}/api/notes/${id}`, {
         method: "PUT",
         headers: {
             "Content-Type": "application/json",
@@ -224,7 +237,7 @@ export const updateNote = (id, note) =>
 export const sendReminder = (contest) => {
     const token = localStorage.getItem('token');
     const email = JSON.parse(localStorage.getItem('user') || 'null')?.email || undefined;
-    return fetch('/api/reminders/send', {
+    return fetch(`${BACKEND_URL}/api/reminders/send`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -237,7 +250,7 @@ export const sendReminder = (contest) => {
 export const scheduleReminder = (contest, minutesBefore = 10) => {
     const token = localStorage.getItem('token');
     const email = JSON.parse(localStorage.getItem('user') || 'null')?.email || undefined;
-    return fetch('/api/reminders/schedule', {
+    return fetch(`${BACKEND_URL}/api/reminders/schedule`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',

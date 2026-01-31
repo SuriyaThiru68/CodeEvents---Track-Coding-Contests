@@ -1,153 +1,260 @@
+
 import React, { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Search, Filter, Calendar, Bell, ExternalLink, SlidersHorizontal, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import {
+    ExternalLink,
+    Loader2,
+    ChevronDown,
+    X
+} from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { toast } from 'sonner';
 import { scheduleReminder } from '../services/api';
 
 export default function Upcoming() {
-    const { contests, registerContest, refreshContests, isLoading } = useStore();
+    const { contests, refreshContests, isLoading, user } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [platformFilter, setPlatformFilter] = useState('All');
+    const [selectedContest, setSelectedContest] = useState(null);
+    const [alertData, setAlertData] = useState({ email: '', time: '15', notes: '' });
 
     useEffect(() => {
         refreshContests();
     }, []);
 
-    const platforms = ['All', 'LeetCode', 'CodeChef', 'Codeforces', 'AtCoder', 'Basecamp', 'Naukri'];
+    useEffect(() => {
+        if (user?.email) {
+            setAlertData(prev => ({ ...prev, email: user.email }));
+        }
+    }, [user]);
 
+    const platforms = ['All', 'LeetCode', 'CodeChef', 'Codeforces', 'AtCoder', 'CodingNinjas', 'HackerRank'];
 
     const filteredContests = contests.filter(c =>
         (platformFilter === 'All' || c.platform === platformFilter) &&
         c.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
+    const handleCreateAlert = (contest) => {
+        setSelectedContest(contest);
+        setAlertData({
+            email: user?.email || '',
+            time: '15',
+            notes: `Reminder for ${contest.name}`
+        });
+    };
+
+    const submitAlert = async () => {
+        if (!alertData.email) {
+            toast.error('Uplink email required.');
+            return;
+        }
+
+        toast.promise(scheduleReminder(selectedContest, parseInt(alertData.time)), {
+            loading: 'Synchronizing alert...',
+            success: 'Alert successfully deployed.',
+            error: 'Uplink synchronization failure.'
+        });
+        setSelectedContest(null);
+    };
+
     return (
-        <div className="space-y-12">
-            <header className="flex flex-col lg:flex-row justify-between lg:items-end gap-8">
-                <div>
-                    <h1 className="text-7xl font-black uppercase tracking-tighter italic mb-4">Upcoming_</h1>
-                    <p className="text-xl font-bold opacity-50 uppercase tracking-widest leading-none">Register and prepare for the next battle</p>
+        <div className="max-w-7xl mx-auto space-y-16 relative">
+            <header className="space-y-4 pt-16">
+                <div className="editorial-subtitle !text-[10px] !tracking-[0.3em] opacity-50">Global Coding Ecosystem</div>
+                <div className="flex flex-col">
+                    <h1 className="text-[6rem] md:text-[8rem] font-serif italic font-black leading-[1.1] tracking-tighter uppercase text-black pt-4">
+                        Upcoming
+                    </h1>
+                    <h1 className="text-[6rem] md:text-[8rem] font-serif italic font-black leading-[1.1] tracking-tighter uppercase text-gray-200">
+                        Contests.
+                    </h1>
                 </div>
 
-                <div className="flex flex-wrap gap-4">
-                    <div className="relative">
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 opacity-40" size={18} />
+                <div className="flex flex-col md:flex-row gap-4 pt-12 items-center">
+                    <div className="relative flex-[4] w-full group">
                         <input
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search contests..."
-                            className="pl-12 pr-4 py-3 border-4 border-[#000] font-bold uppercase tracking-widest text-xs focus:bg-[#000] focus:text-[#fff] transition-colors outline-none min-w-[300px]"
+                            placeholder="Search archives by name or node..."
+                            className="input-minimal px-10 h-20 !text-lg !bg-white border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)] focus:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.05)]"
                         />
                     </div>
-                    <div className="flex items-center gap-2 border-4 border-[#000] px-4 py-2 bg-[#fff]">
-                        <SlidersHorizontal size={18} />
+                    <div className="relative flex-[1] w-full md:w-auto">
                         <select
                             value={platformFilter}
                             onChange={(e) => setPlatformFilter(e.target.value)}
-                            className="bg-transparent font-black uppercase text-xs tracking-widest outline-none cursor-pointer"
+                            className="input-minimal px-10 h-20 appearance-none cursor-pointer pr-16 w-full !text-sm font-black uppercase tracking-widest !bg-white border-gray-100 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.03)]"
                         >
                             {platforms.map(p => <option key={p} value={p}>{p}</option>)}
                         </select>
+                        <ChevronDown className="absolute right-8 top-1/2 -translate-y-1/2 text-black/20 pointer-events-none" size={20} strokeWidth={2.5} />
                     </div>
                 </div>
             </header>
 
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-40 border-8 border-[#000] border-dashed">
-                    <Loader2 className="animate-spin mb-4" size={48} />
-                    <h3 className="text-2xl font-black uppercase tracking-widest italic opacity-40">Syncing Global Conflict Data...</h3>
+                <div className="flex flex-col items-center justify-center py-40 border border-dashed border-gray-100 rounded-3xl">
+                    <Loader2 className="animate-spin mb-4 text-gray-300" size={32} strokeWidth={1.5} />
+                    <h3 className="editorial-subtitle !text-[10px]">Synchronizing archive...</h3>
                 </div>
             ) : (
-                <>
-                    <section className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
-                        {filteredContests.map((contest) => (
-                            <motion.div
-                                key={contest.id}
-                                layout
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                onClick={() => window.open(contest.url, '_blank')}
-                                className="border-4 border-[#000] bg-[#fff] p-8 shadow-[10px_10px_0px_0px_#000] group flex flex-col justify-between cursor-pointer hover:-translate-y-1 transition-all"
-                            >
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    {filteredContests.map((contest, idx) => (
+                        <motion.div
+                            key={contest.id}
+                            initial={{ opacity: 0, scale: 0.95, y: 30 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            whileHover={{
+                                scale: 1.02,
+                                y: -10,
+                                transition: { duration: 0.4, ease: [0.16, 1, 0.3, 1] }
+                            }}
+                            transition={{
+                                delay: idx * 0.05,
+                                duration: 0.8,
+                                ease: [0.16, 1, 0.3, 1]
+                            }}
+                            className="card-minimal flex flex-col p-10 group relative overflow-hidden cursor-default shadow-sm hover:shadow-2xl hover:shadow-black/5"
+                        >
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-black rounded-bl-full translate-x-8 -translate-y-8" />
 
-                                <div>
-                                    <div className="flex justify-between items-start mb-6">
-                                        <span className="bg-[#000] text-[#fff] px-3 py-1 text-[10px] font-black uppercase tracking-widest">
-                                            {contest.platform}
-                                        </span>
-                                        {contest.registered ? (
-                                            <span className="text-green-500 font-black uppercase text-[10px] tracking-widest flex items-center gap-1">
-                                                <Calendar size={12} /> Registered
-                                            </span>
-                                        ) : (
-                                            <span className="opacity-40 font-black uppercase text-[10px] tracking-widest italic">Open</span>
-                                        )}
-                                    </div>
-
-                                    <h3 className="text-2xl font-black uppercase tracking-tight mb-4 group-hover:text-[#2563eb] transition-colors">
-                                        {contest.name}
-                                    </h3>
-
-                                    <div className="space-y-4 mb-8">
-                                        <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest opacity-60">
-                                            <Calendar size={16} /> {new Date(contest.date).toLocaleDateString()}
-                                        </div>
-                                        <div className="flex items-center gap-3 text-sm font-bold uppercase tracking-widest opacity-60">
-                                            <Bell size={16} /> {new Date(contest.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                                        </div>
-                                        <div className="flex flex-wrap gap-2">
-                                            <span className="border border-current px-2 py-0.5 text-[10px] font-black uppercase">{contest.duration}</span>
-                                            <span className="border border-current px-2 py-0.5 text-[10px] font-black uppercase bg-gray-100">{contest.difficulty}</span>
-                                        </div>
-                                    </div>
+                            <div className="flex justify-between items-start mb-8 relative z-10">
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                                    <span className="editorial-subtitle !text-[10px] !text-gray-400">{contest.platform}</span>
                                 </div>
+                            </div>
 
-                                <div className="flex flex-col gap-2 pt-6 border-t-2 border-[#000]/10">
-                                    {contest.registered ? (
-                                        <button className="w-full border-4 border-[#2563eb] text-[#2563eb] py-3 font-black uppercase tracking-widest text-xs hover:bg-[#2563eb] hover:text-[#fff] transition-colors">
-                                            Unregister
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => { registerContest(contest.id); toast.success(`Registered for ${contest.name}`); }}
-                                            className="w-full bg-[#000] text-[#fff] py-3 font-black uppercase tracking-widest text-xs hover:bg-[#333] transition-colors border-4 border-[#000]"
-                                        >
-                                            Register Now
-                                        </button>
-                                    )}
+                            <h3 className="text-2xl font-serif mb-8 leading-tight h-20 line-clamp-2 pr-12">
+                                {contest.name}
+                            </h3>
+
+                            <div className="space-y-4 mb-12 flex-1 relative z-10">
+                                <div className="flex items-center gap-4 text-[11px] uppercase tracking-widest font-bold text-gray-800">
+                                    <span>{new Date(contest.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
+                                    <span className="opacity-20">•</span>
+                                    <span>{new Date(contest.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <span className="bg-gray-50 text-[9px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest text-gray-500">{contest.duration}</span>
+                                    <span className="bg-gray-50 text-[9px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest text-gray-500">Mixed</span>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-6 pt-8 relative z-10 border-t border-gray-50">
+                                <a
+                                    href={contest.url}
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="btn-black w-full justify-center !py-4 shadow-xl shadow-black/5 !text-xs font-bold tracking-[0.1em]"
+                                >
+                                    Access Node <ExternalLink size={14} className="ml-2" />
+                                </a>
+                                <div className="flex justify-center">
                                     <button
-                                        onClick={() => {
-                                            const user = useStore.getState().user;
-                                            if (!user?.email) {
-                                                toast.error('Please set your email in Profile or log in to schedule reminders');
-                                                return;
-                                            }
-                                            const promise = scheduleReminder(contest, 10);
-                                            toast.promise(
-                                                promise,
-                                                {
-                                                    loading: 'Scheduling reminder...',
-                                                    success: (res) => res.scheduledAt ? `System: Reminder scheduled for ${new Date(res.scheduledAt).toLocaleString()}` : (`System: ${res.msg || 'Reminder scheduled'}`),
-                                                    error: (err) => err?.message || 'Scheduling failed',
-                                                }
-                                            );
-                                        }}
-                                        className="w-full border-4 border-[#000] py-3 font-black uppercase tracking-widest text-xs flex items-center justify-center gap-2 hover:bg-[#000] hover:text-[#fff] transition-all shadow-[4px_4px_0px_0px_#000]"
+                                        onClick={() => handleCreateAlert(contest)}
+                                        className="text-[10px] font-black uppercase tracking-[0.3em] text-gray-400 hover:text-black transition-colors"
                                     >
-                                        Remind Me <ExternalLink size={14} />
+                                        Initialize Alert
                                     </button>
                                 </div>
-                            </motion.div>
-                        ))}
-                    </section>
+                            </div>
+                        </motion.div>
+                    ))}
+                </div>
+            )}
 
-                    {filteredContests.length === 0 && (
-                        <div className="border-8 border-[#000] border-dashed p-32 text-center">
-                            <h3 className="text-4xl font-black uppercase tracking-tighter italic opacity-20">No Battles Found_</h3>
-                        </div>
-                    )}
-                </>
+            <AnimatePresence>
+                {selectedContest && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center px-6">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setSelectedContest(null)}
+                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="bg-white w-full max-w-xl rounded-[40px] p-16 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.3)] relative z-10 border border-gray-100"
+                        >
+                            <button
+                                onClick={() => setSelectedContest(null)}
+                                className="absolute top-10 right-10 text-gray-200 hover:text-black transition-colors"
+                            >
+                                <X size={28} strokeWidth={1.5} />
+                            </button>
+
+                            <div className="space-y-12">
+                                <div className="space-y-4">
+                                    <div className="editorial-subtitle !text-[12px] !tracking-[0.4em] opacity-40">Protocol Initialization</div>
+                                    <h2 className="text-5xl font-serif italic font-black leading-none">Deploy Alert.</h2>
+                                    <p className="text-[11px] text-gray-400 uppercase tracking-widest leading-relaxed border-l-2 border-gray-100 pl-4">{selectedContest.name}</p>
+                                </div>
+
+                                <div className="space-y-8">
+                                    <div className="space-y-3">
+                                        <label className="editorial-subtitle !text-[10px] !text-black font-black tracking-[0.2em]">Registry Email</label>
+                                        <div className="relative">
+                                            <input
+                                                value={alertData.email}
+                                                onChange={(e) => setAlertData({ ...alertData, email: e.target.value })}
+                                                className="input-minimal px-8 !py-5 !text-sm !bg-gray-50/30 border-gray-100 rounded-2xl"
+                                                placeholder="coder@gmail.com"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="editorial-subtitle !text-[10px] !text-black font-black tracking-[0.2em]">Pre-Contest Buffer (Minutes)</label>
+                                        <div className="relative">
+                                            <select
+                                                value={alertData.time}
+                                                onChange={(e) => setAlertData({ ...alertData, time: e.target.value })}
+                                                className="input-minimal px-8 !py-5 !text-sm appearance-none !bg-gray-50/30 border-gray-100 rounded-2xl cursor-pointer"
+                                            >
+                                                <option value="5">5 Minutes Before</option>
+                                                <option value="15">15 Minutes Before</option>
+                                                <option value="30">30 Minutes Before</option>
+                                                <option value="60">1 Hour Before</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" size={16} />
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <label className="editorial-subtitle !text-[10px] !text-black font-black tracking-[0.2em]">Transmission Notes</label>
+                                        <div className="relative">
+                                            <textarea
+                                                value={alertData.notes}
+                                                onChange={(e) => setAlertData({ ...alertData, notes: e.target.value })}
+                                                className="input-minimal px-8 !py-6 !text-sm h-32 resize-none !bg-gray-50/30 border-gray-100 rounded-2xl"
+                                                placeholder="Reminder for node access..."
+                                            />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <button
+                                    onClick={submitAlert}
+                                    className="btn-black w-full justify-center !py-6 !text-lg !rounded-[100px] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)]"
+                                >
+                                    Sync Alert System
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            {!isLoading && filteredContests.length === 0 && (
+                <div className="py-40 text-center">
+                    <div className="editorial-title italic opacity-10">EmptyArchive_</div>
+                    <p className="mt-4 editorial-subtitle !text-[10px]">No active data streams detected for this query.</p>
+                </div>
             )}
         </div>
     );
