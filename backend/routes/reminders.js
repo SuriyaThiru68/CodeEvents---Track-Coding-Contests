@@ -1,42 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Reminder = require('../models/Reminder');
-
-// Simple reminder/email helper. If SMTP env vars are set, it will send via nodemailer.
-// Otherwise it will log the payload (development fallback).
-const sendEmailFallback = async ({ to, subject, text, html }) => {
-    console.log('Reminder email payload (fallback, SMTP not configured):');
-    console.log({ to, subject, text, html });
-    return true;
-};
+const { sendEmail } = require('../utils/mailer');
 
 const sendReminderEmail = async (email, contest) => {
     if (!email || !contest) throw new Error('Missing email or contest for sending reminder');
 
-    // If SMTP configured, use nodemailer
-    if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS) {
-        const nodemailer = require('nodemailer');
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT ? Number(process.env.SMTP_PORT) : 587,
-            secure: process.env.SMTP_SECURE === 'true',
-            auth: {
-                user: process.env.SMTP_USER,
-                pass: process.env.SMTP_PASS
-            }
-        });
+    const subject = `Reminder: ${contest.name} on ${new Date(contest.date).toLocaleString()}`;
+    const text = `Don't forget: ${contest.name} (${contest.platform}) starts at ${new Date(contest.date).toLocaleString()}\n\nLink: ${contest.url}\n\nSent from suriyaaaat68@gmail.com`;
+    const html = `<p>Don't forget: <strong>${contest.name}</strong> (${contest.platform}) starts at ${new Date(contest.date).toLocaleString()}</p><p><a href="${contest.url}">Open contest</a></p><p style="color: #666; font-size: 12px; margin-top: 30px;">Sent from suriyaaaat68@gmail.com</p>`;
 
-        const subject = `Reminder: ${contest.name} on ${new Date(contest.date).toLocaleString()}`;
-        const text = `Don't forget: ${contest.name} (${contest.platform}) starts at ${new Date(contest.date).toLocaleString()}\n\nLink: ${contest.url}`;
-        const html = `<p>Don't forget: <strong>${contest.name}</strong> (${contest.platform}) starts at ${new Date(contest.date).toLocaleString()}</p><p><a href="${contest.url}">Open contest</a></p>`;
-
-        await transporter.sendMail({ from: process.env.SMTP_FROM || process.env.SMTP_USER, to: email, subject, text, html });
-        return { msg: 'Reminder sent' };
-    }
-
-    // Fallback: log and return success
-    await sendEmailFallback({ to: email, subject: `Reminder: ${contest.name}`, text: `Starts at ${contest.date}`, html: `<p>${contest.name}</p>` });
-    return { msg: 'Reminder recorded (no SMTP configured)' };
+    await sendEmail({ to: email, subject, text, html });
+    return { msg: 'Reminder processed' };
 };
 
 // Make helper available to worker
@@ -75,7 +50,48 @@ router.post('/schedule', async (req, res) => {
         }
 
         const reminder = await Reminder.create({ email, contest, sendAt });
-        return res.json({ msg: 'Reminder scheduled', scheduledAt: reminder.sendAt });
+
+        // Send confirmation email
+        try {
+            await sendEmail({
+                to: email,
+                subject: `Alert Synced: ${contest.name}`,
+                text: `Success! Your alert for ${contest.name} has been synced. We will remind you at ${sendAt.toLocaleString()}.\n\nSent from suriyaaaat68@gmail.com`,
+                html: `<h3>Alert Synced Successfully</h3><p>Your alert for <strong>${contest.name}</strong> has been deployed.</p><p>We will send you a reminder at: <strong>${sendAt.toLocaleString()}</strong></p><p style="color: #666; font-size: 12px; margin-top: 30px;">Sent from suriyaaaat68@gmail.com</p>`
+            });
+        } catch (mailErr) {
+            console.error("Failed to send scheduled confirmation email:", mailErr);
+        }
+
+        return res.json({
+            msg: 'Reminder scheduled',
+            detail: 'Initialization email sent to ' + email,
+            scheduledAt: reminder.sendAt
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: err.message });
+    }
+});
+
+// Test email endpoint
+router.get('/test-email/:email', async (req, res) => {
+    try {
+        const { email } = req.params;
+        const subject = "System Verification: Link Established";
+        const text = `Success! Your email node (${email}) has been successfully linked to the CodeEvents ecosystem. You will receive notifications before your contests start.\n\nSent from suriyaaaat68@gmail.com`;
+        const html = `
+            <div style="font-family: serif; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+                <h1 style="font-style: italic; color: #000;">Connection Verified</h1>
+                <p>Success! Your email node (<strong>${email}</strong>) has been successfully linked to the <strong>CodeEvents</strong> ecosystem.</p>
+                <p>You will receive notifications before your contests start at this address.</p>
+                <hr style="border: none; border-top: 1px solid #eee; margin: 20px 0;">
+                <p style="color: #666; font-size: 12px;">Sent from suriyaaaat68@gmail.com</p>
+            </div>
+        `;
+
+        await sendEmail({ to: email, subject, text, html });
+        return res.json({ msg: 'Test email dispatched to ' + email });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });

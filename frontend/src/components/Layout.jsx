@@ -67,7 +67,6 @@ const Sidebar = ({ isCollapsed }) => {
             </div>
 
             <div className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-                <div className="px-10 editorial-subtitle !text-[9px] mb-6 opacity-20 font-black tracking-[0.3em]">Selection Network</div>
                 <div className="space-y-1">
                     {menuItems.map((item) => (
                         <SidebarItem

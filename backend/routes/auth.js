@@ -2,6 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
+const { sendEmail } = require("../utils/mailer");
 
 const router = express.Router();
 
@@ -34,8 +35,21 @@ router.post("/register", async (req, res) => {
             password: hashedPassword
         });
 
+        // Send Welcome Email
+        try {
+            await sendEmail({
+                to: newUser.email,
+                subject: "Welcome to CodeEvents!",
+                text: `Hi ${newUser.name},\n\nYou have successfully registered to CodeEvents. You will receive notifications before your contests start at this email address.\n\nSent from suriyaaaat68@gmail.com`,
+                html: `<h1>Welcome to CodeEvents!</h1><p>Hi <strong>${newUser.name}</strong>,</p><p>You have successfully registered to <strong>CodeEvents</strong>. You will receive notifications before your contests start at this email address.</p><p style="color: #666; font-size: 12px; margin-top: 30px;">Sent from suriyaaaat68@gmail.com</p>`
+            });
+        } catch (mailErr) {
+            console.error("Failed to send welcome email:", mailErr);
+        }
+
         return res.status(201).json({
             message: "User registered successfully",
+            detail: "A welcome email has been sent to your registry email.",
             user: {
                 id: newUser._id.toString(),
                 name: newUser.name,

@@ -9,7 +9,9 @@ const ATCODER_API = 'https://kenkoooo.com/atcoder/atcoder-api/v3/user/info?user=
 const CLIST_API_URL = 'https://clist.by/api/v4/contest/';
 const CLIST_KEY = 'ApiKey alighter:11de134ba4e27ba11733cbefc077f4183eaf08f8';
 
-const BACKEND_URL = 'https://codeevents-tracking.onrender.com';
+const BACKEND_URL = window.location.hostname === 'localhost'
+    ? 'http://localhost:4000'
+    : 'https://codeevents-tracking.onrender.com';
 
 const ALLOWED_RESOURCES = [
     'leetcode.com',
@@ -25,7 +27,7 @@ export const fetchContests = async () => {
     try {
         const resourceFilter = ALLOWED_RESOURCES.join(',');
         console.log('Fetching contests with filter:', resourceFilter);
-        let response = await fetch(`${CLIST_API_URL}?upcoming=true&order_by=start&limit=200&host__in=${resourceFilter}`, {
+        let response = await fetch(`${CLIST_API_URL}?upcoming=true&order_by=start&limit=200&resource__in=${resourceFilter}`, {
             headers: { 'Authorization': CLIST_KEY }
         });
 
@@ -234,9 +236,10 @@ export const updateNote = (id, note) =>
         body: JSON.stringify(note)
     });
 
-export const sendReminder = (contest) => {
+export const sendReminder = (contest, emailOverride = null) => {
     const token = localStorage.getItem('token');
-    const email = JSON.parse(localStorage.getItem('user') || 'null')?.email || undefined;
+    const userEmail = JSON.parse(localStorage.getItem('user') || 'null')?.email;
+    const email = emailOverride || userEmail;
     return fetch(`${BACKEND_URL}/api/reminders/send`, {
         method: 'POST',
         headers: {
@@ -247,9 +250,10 @@ export const sendReminder = (contest) => {
     }).then(res => res.json());
 };
 
-export const scheduleReminder = (contest, minutesBefore = 10) => {
+export const scheduleReminder = (contest, minutesBefore = 10, emailOverride = null) => {
     const token = localStorage.getItem('token');
-    const email = JSON.parse(localStorage.getItem('user') || 'null')?.email || undefined;
+    const userEmail = JSON.parse(localStorage.getItem('user') || 'null')?.email;
+    const email = emailOverride || userEmail;
     return fetch(`${BACKEND_URL}/api/reminders/schedule`, {
         method: 'POST',
         headers: {

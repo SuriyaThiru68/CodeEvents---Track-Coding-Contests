@@ -50,9 +50,9 @@ export default function Upcoming() {
             return;
         }
 
-        toast.promise(scheduleReminder(selectedContest, parseInt(alertData.time)), {
+        toast.promise(scheduleReminder(selectedContest, parseInt(alertData.time), alertData.email), {
             loading: 'Synchronizing alert...',
-            success: 'Alert successfully deployed.',
+            success: 'Alert deployed. Check your registry mail.',
             error: 'Uplink synchronization failure.'
         });
         setSelectedContest(null);

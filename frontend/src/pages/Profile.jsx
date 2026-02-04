@@ -193,13 +193,33 @@ export default function Profile() {
                                             <label className="editorial-subtitle !text-black font-black">Professional Bio</label>
                                             <textarea value={formData.bio} onChange={(e) => setFormData({ ...formData, bio: e.target.value })} className="input-minimal h-40 resize-none !bg-gray-50/50" />
                                         </div>
-                                        <div className="pt-6">
+                                        <div className="pt-6 flex gap-4">
                                             <motion.button
                                                 whileTap={{ scale: 0.98 }}
                                                 onClick={handleSave}
                                                 className="btn-black shadow-lg shadow-black/10"
                                             >
                                                 <Save size={16} /> Update Identity
+                                            </motion.button>
+                                            <motion.button
+                                                whileTap={{ scale: 0.98 }}
+                                                onClick={async () => {
+                                                    const loadingToast = toast.loading('Dispatching test transmission...');
+                                                    try {
+                                                        const BACKEND_URL = window.location.hostname === 'localhost' ? 'http://localhost:4000' : 'https://codeevents-tracking.onrender.com';
+                                                        const res = await fetch(`${BACKEND_URL}/api/reminders/test-email/${formData.email}`);
+                                                        if (res.ok) {
+                                                            toast.success('Test email dispatched to ' + formData.email, { id: loadingToast });
+                                                        } else {
+                                                            toast.error('Transmission failure', { id: loadingToast });
+                                                        }
+                                                    } catch (err) {
+                                                        toast.error('Uplink error', { id: loadingToast });
+                                                    }
+                                                }}
+                                                className="px-8 py-4 border border-gray-100 rounded-2xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-gray-50 transition-all flex items-center gap-3"
+                                            >
+                                                <Mail size={14} /> Send Test Mail
                                             </motion.button>
                                         </div>
                                     </div>

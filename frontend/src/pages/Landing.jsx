@@ -31,11 +31,6 @@ export default function Landing() {
                         <span className="font-serif text-lg tracking-tight font-medium">CodeEvents</span>
                     </div>
 
-                    <div className="hidden md:flex items-center gap-12">
-                        <a href="#features" className="editorial-subtitle !text-[10px] hover:text-black transition-colors">Capabilities</a>
-                        <a href="#creator" className="editorial-subtitle !text-[10px] hover:text-black transition-colors">Manifesto</a>
-                    </div>
-
                     <div className="flex items-center gap-8">
                         <Link to="/login" className="editorial-subtitle !text-[10px] hover:text-black transition-colors">
                             Sign In
@@ -55,10 +50,6 @@ export default function Landing() {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
                     >
-                        <div className="editorial-subtitle mb-8 flex items-center gap-3">
-                            <span className="w-1.5 h-1.5 bg-green-500 rounded-full animate-pulse" />
-                            System Active / V 2.0
-                        </div>
                         <h1 className="editorial-title uppercase mb-10">
                             Master the <br />
                             <span className="italic opacity-30">Coding Arena.</span>
@@ -150,34 +141,6 @@ export default function Landing() {
                 </div>
             </section>
 
-            {/* Creator Section */}
-            <section id="creator" className="py-40 px-12">
-                <div className="max-w-5xl mx-auto">
-                    <div className="card-minimal bg-black text-white p-16 md:p-24 relative overflow-hidden group">
-                        <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.05),transparent_60%)] group-hover:scale-110 transition-transform duration-1000" />
-
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 relative z-10 items-center">
-                            <div className="space-y-10">
-                                <h2 className="text-5xl font-serif leading-none uppercase">Designed <br /><span className="italic text-white/30">From Code.</span></h2>
-                                <p className="text-white/40 text-lg leading-relaxed font-light">
-                                    Crafted by Suriya Thiruppathy, a developer obsessed with the intersection of high-performance logic and minimalist aesthetics. CodeEvents is a tool built for those who value both function and form.
-                                </p>
-
-                                <div className="flex gap-6">
-                                    <SocialLink href="https://github.com/suriyathiruppathy" icon={Github} label="GitHub" />
-                                    <SocialLink href="https://www.linkedin.com/in/suriyathiruppathy/" icon={Linkedin} label="LinkedIn" />
-                                </div>
-                            </div>
-
-                            <div className="relative">
-                                <div className="aspect-[3/4] rounded-2xl overflow-hidden border border-white/10 shadow-3xl">
-                                    <img src="/creator.jpg" alt="Creator" className="w-full h-full object-cover grayscale brightness-75 hover:grayscale-0 hover:brightness-100 transition-all duration-1000" />
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
 
             {/* Footer */}
             <footer className="border-t border-gray-50 py-20 px-12">
@@ -187,13 +150,8 @@ export default function Landing() {
                         <span className="font-serif text-xl tracking-tighter">CodeEvents</span>
                     </div>
 
-                    <div className="flex gap-12">
-                        <FooterLink label="Privacy Policy" />
-                        <FooterLink label="Terms of Access" />
-                        <FooterLink label="Connect" />
-                    </div>
 
-                    <div className="editorial-subtitle !text-[9px] !text-gray-300">
+                    <div className="editorial-subtitle !text-[9px] !text-gray-500">
                         © 2026 CODEEVENTS / OPERATIONAL
                     </div>
                 </div>

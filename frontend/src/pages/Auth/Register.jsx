@@ -36,8 +36,8 @@ export default function Register() {
                 return;
             }
 
-            toast.success("Identity Created. Redirecting...");
-            setTimeout(() => navigate("/login"), 1000);
+            toast.success("Identity Created. Welcome email sent.");
+            setTimeout(() => navigate("/login"), 1500);
         } catch (err) {
             toast.error("Failed to reach ecosystem.");
         } finally {

@@ -52,7 +52,7 @@ export default function Dashboard() {
                 <div className="editorial-subtitle opacity-50 tracking-[0.3em]">Personal Command Center</div>
                 <h1 className="text-[5rem] md:text-[7rem] font-serif italic font-black leading-[1.1] tracking-tighter uppercase text-black pt-4">
                     Overview. <br />
-                    <span className="text-gray-200">Strategic.</span>
+                    <span className="text-4xl md:text-6xl lg:text-5xl text-gray-400">A quick view of your upcoming events, completed tasks, and success rate.</span>
                 </h1>
             </motion.header>
 
@@ -128,7 +128,7 @@ export default function Dashboard() {
                         <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
                         <Trophy className="text-white opacity-20 mb-8" size={40} strokeWidth={1} />
                         <div className="editorial-subtitle text-white/50 mb-3 font-bold tracking-[0.4em] uppercase !text-[9px]">Global Protocol Tier</div>
-                        <div className="text-6xl font-serif mb-8 italic tracking-tighter">Grandmaster</div>
+                        <div className="text-5xl font-serif mb-8 italic tracking-tighter">Grandmaster</div>
                         <div className="flex items-center gap-3 text-[10px] font-black text-white/40 uppercase tracking-[0.2em]">
                             <TrendingUp size={16} className="text-green-500" />
                             <span>+24 positions gained</span>
