@@ -137,9 +137,9 @@ export const Layout = ({ children }) => {
                         <button className="text-gray-400 hover:text-black transition-all duration-300 hover:scale-110">
                             <Bell size={18} strokeWidth={1.5} />
                         </button>
-                        <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center font-bold text-[10px] text-gray-400 shadow-inner group cursor-pointer hover:border-black transition-colors">
+                        <Link to="/profile" className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center font-bold text-[10px] text-gray-400 shadow-inner group cursor-pointer hover:border-black transition-colors overflow-hidden">
                             {user?.name?.[0] || 'U'}
-                        </div>
+                        </Link>
                     </div>
                 </header>
 

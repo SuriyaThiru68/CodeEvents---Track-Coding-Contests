@@ -12,7 +12,8 @@ import {
     CheckCircle2,
     Trash2,
     ArrowUpRight,
-    Loader2
+    Loader2,
+    Mail
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { toast } from 'sonner';
