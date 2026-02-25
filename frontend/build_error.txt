@@ -1,0 +1,10 @@
+[31msrc/services/aiEngine.js (555:4): Duplicate export "runFullAnalysis"[39m
+file: [36mE:/coding-event-notifications/frontend/src/services/aiEngine.js:555:4[39m
+[33m
+553: 
+554: export {
+555:     runFullAnalysis,
+         ^
+556:     computeEfficiencyScore,
+557:     analyzeConsistency,
+[39m

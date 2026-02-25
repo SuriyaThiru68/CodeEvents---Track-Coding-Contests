@@ -48,11 +48,11 @@ export default function Dashboard() {
             variants={containerVariants}
             className="max-w-7xl mx-auto space-y-24 pt-12"
         >
-            <motion.header variants={itemVariants} className="space-y-4 mb-4">
+            <motion.header variants={itemVariants} className="space-y-4 mb-4 text-white">
                 <div className="editorial-subtitle opacity-50 tracking-[0.3em]">Personal Command Center</div>
-                <h1 className="text-[5rem] md:text-[7rem] font-serif italic font-black leading-[1.1] tracking-tighter uppercase text-black pt-4">
+                <h1 className="text-[5rem] md:text-[7rem] font-serif italic font-black leading-[1.1] tracking-tighter text-white pt-4">
                     Overview. <br />
-                    <span className="text-4xl md:text-6xl lg:text-5xl text-gray-400">A quick view of your upcoming events, completed tasks, and success rate.</span>
+                    <span className="text-4xl md:text-6xl lg:text-5xl text-zinc-500">A quick view of your upcoming events, completed tasks, and success rate.</span>
                 </h1>
             </motion.header>
 
@@ -66,12 +66,12 @@ export default function Dashboard() {
                         key={stat.label}
                         variants={itemVariants}
                         whileHover={{ y: -10, transition: { duration: 0.3 } }}
-                        className="card-minimal p-10 flex flex-col items-center justify-center text-center relative overflow-hidden group"
+                        className="card-minimal p-10 flex flex-col items-center justify-center text-center relative overflow-hidden group border-zinc-900"
                     >
-                        <div className={`absolute top-0 right-0 w-16 h-16 ${stat.color} opacity-0 group-hover:opacity-5 rounded-bl-full transition-opacity duration-500`} />
-                        <stat.icon className="mb-6 opacity-30 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500" size={24} strokeWidth={1.5} />
-                        <div className="editorial-subtitle mb-2 transition-colors duration-500 group-hover:text-black">{stat.label}</div>
-                        <div className="text-6xl font-serif tracking-tighter group-hover:scale-105 transition-transform duration-500">{stat.value}</div>
+                        <div className={`absolute top-0 right-0 w-16 h-16 ${stat.color} opacity-0 group-hover:opacity-10 rounded-bl-full transition-opacity duration-500`} />
+                        <stat.icon className="mb-6 opacity-30 group-hover:opacity-100 group-hover:scale-110 transition-all duration-500 text-white" size={24} strokeWidth={1.5} />
+                        <div className="editorial-subtitle mb-2 transition-colors duration-500 group-hover:text-white text-zinc-500">{stat.label}</div>
+                        <div className="text-6xl font-serif tracking-tighter group-hover:scale-105 transition-transform duration-500 text-white">{stat.value}</div>
                     </motion.div>
                 ))}
             </motion.section>
@@ -80,8 +80,8 @@ export default function Dashboard() {
                 {/* Challenges Section */}
                 <motion.section variants={itemVariants} className="lg:col-span-2 space-y-12">
                     <div className="flex justify-between items-end">
-                        <h2 className="text-4xl font-serif italic">Next Challenges <span className="opacity-20">/ Recent</span></h2>
-                        <Link to="/upcoming" className="editorial-subtitle text-black flex items-center gap-1 group">
+                        <h2 className="text-4xl font-serif italic text-white">Next Challenges <span className="opacity-20 text-white">/ Recent</span></h2>
+                        <Link to="/upcoming" className="editorial-subtitle text-white flex items-center gap-1 group">
                             Full Calendar <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                         </Link>
                     </div>
@@ -92,26 +92,26 @@ export default function Dashboard() {
                                 key={contest.id}
                                 variants={itemVariants}
                                 whileHover={{ x: 10 }}
-                                className="card-minimal flex items-center p-8 group hover:border-black transition-all duration-500"
+                                className="card-minimal flex items-center p-8 group hover:border-white transition-all duration-500"
                             >
-                                <div className="w-16 h-16 bg-black text-white rounded-2xl flex items-center justify-center font-serif text-2xl shadow-xl shadow-black/10 group-hover:rotate-6 transition-transform">
+                                <div className="w-16 h-16 bg-zinc-800 text-white rounded-2xl flex items-center justify-center font-serif text-2xl shadow-xl shadow-black/50 group-hover:rotate-6 transition-transform">
                                     {new Date(contest.date).getDate()}
                                 </div>
                                 <div className="ml-8 flex-1">
-                                    <div className="editorial-subtitle !text-[10px] mb-2 opacity-40 group-hover:opacity-100 uppercase tracking-widest">{contest.platform}</div>
-                                    <h3 className="text-2xl font-serif group-hover:tracking-tight transition-all">{contest.name}</h3>
+                                    <div className="editorial-subtitle !text-[10px] mb-2 opacity-40 group-hover:opacity-100 uppercase tracking-widest text-zinc-500 group-hover:text-white">{contest.platform}</div>
+                                    <h3 className="text-2xl font-serif group-hover:tracking-tight transition-all text-white">{contest.name}</h3>
                                 </div>
-                                <div className="text-right pr-8 border-r border-gray-50 group-hover:border-black/10 transition-colors">
-                                    <div className="editorial-subtitle !text-[10px] mb-1 opacity-30">Window</div>
-                                    <div className="text-sm font-black uppercase tracking-widest">{contest.duration}</div>
+                                <div className="text-right pr-8 border-r border-zinc-900 group-hover:border-white/10 transition-colors">
+                                    <div className="editorial-subtitle !text-[10px] mb-1 opacity-30 text-zinc-500">Window</div>
+                                    <div className="text-sm font-black uppercase tracking-widest text-white">{contest.duration}</div>
                                 </div>
-                                <Link to="/upcoming" className="ml-8 w-12 h-12 rounded-full border border-gray-100 flex items-center justify-center hover:bg-black hover:text-white transition-all duration-500">
+                                <Link to="/upcoming" className="ml-8 w-12 h-12 rounded-full border border-zinc-800 flex items-center justify-center hover:bg-white hover:text-black transition-all duration-500 text-white hover:border-white">
                                     <ArrowUpRight size={20} strokeWidth={1.5} />
                                 </Link>
                             </motion.div>
                         )) : (
-                            <div className="p-20 text-center border-2 border-dashed border-gray-50 rounded-[40px]">
-                                <p className="editorial-subtitle opacity-30">No active challenges in orbit.</p>
+                            <div className="p-20 text-center border-2 border-dashed border-zinc-900 rounded-[40px]">
+                                <p className="editorial-subtitle opacity-30 text-white">No active challenges in orbit.</p>
                             </div>
                         )}
                     </div>
@@ -119,13 +119,13 @@ export default function Dashboard() {
 
                 {/* Performance Analytics Sidebar */}
                 <motion.section variants={itemVariants} className="space-y-12">
-                    <h2 className="text-4xl font-serif italic">Global Status <span className="opacity-20">/ Rank</span></h2>
+                    <h2 className="text-4xl font-serif italic text-white">Global Status <span className="opacity-20 text-white">/ Rank</span></h2>
 
                     <motion.div
                         whileHover={{ scale: 1.02 }}
-                        className="card-minimal !bg-black text-white p-12 relative overflow-hidden group shadow-2xl shadow-black/20"
+                        className="card-minimal !bg-zinc-900 border-zinc-800 text-white p-12 relative overflow-hidden group shadow-2xl shadow-black/40"
                     >
-                        <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-5 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
+                        <div className="absolute top-0 right-0 w-40 h-40 bg-white opacity-10 rounded-full -translate-y-1/2 translate-x-1/2 blur-2xl group-hover:scale-150 transition-transform duration-1000" />
                         <Trophy className="text-white opacity-20 mb-8" size={40} strokeWidth={1} />
                         <div className="editorial-subtitle text-white/50 mb-3 font-bold tracking-[0.4em] uppercase !text-[9px]">Global Protocol Tier</div>
                         <div className="text-5xl font-serif mb-8 italic tracking-tighter">Grandmaster</div>
@@ -135,31 +135,31 @@ export default function Dashboard() {
                         </div>
                     </motion.div>
 
-                    <div className="card-minimal p-10 space-y-8">
+                    <div className="card-minimal p-10 space-y-8 border-zinc-900">
                         <div className="space-y-6">
-                            <div className="flex justify-between editorial-subtitle !text-black font-black uppercase !text-[10px] tracking-widest">
+                            <div className="flex justify-between editorial-subtitle !text-white font-black uppercase !text-[10px] tracking-widest">
                                 <span className="opacity-40">System Engagement</span>
                                 <span>64%</span>
                             </div>
-                            <div className="h-1.5 bg-gray-50 rounded-full overflow-hidden">
+                            <div className="h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                                 <motion.div
                                     initial={{ width: 0 }}
                                     animate={{ width: '64%' }}
                                     transition={{ duration: 2, ease: [0.34, 1.56, 0.64, 1] }}
-                                    className="h-full bg-black shadow-[0_0_10px_rgba(0,0,0,0.2)]"
+                                    className="h-full bg-white shadow-[0_0_10px_rgba(255,255,255,0.2)]"
                                 />
                             </div>
                         </div>
-                        <p className="text-[10px] text-gray-400 font-bold uppercase tracking-[0.2em] leading-relaxed">65% of monthly combat objectives successfully secured across all nodes.</p>
+                        <p className="text-[10px] text-zinc-500 font-bold uppercase tracking-[0.2em] leading-relaxed">65% of monthly combat objectives successfully secured across all nodes.</p>
                     </div>
 
-                    <div className="p-8 border border-gray-100 rounded-[30px] flex items-center gap-6 group hover:bg-gray-50 transition-colors cursor-pointer">
+                    <div className="p-8 border border-zinc-900 rounded-[30px] flex items-center gap-6 group hover:bg-zinc-900/50 transition-colors cursor-pointer bg-black">
                         <div className="w-12 h-12 rounded-full bg-green-500/10 flex items-center justify-center text-green-600 transition-transform group-hover:rotate-12">
                             <Target size={24} strokeWidth={1.5} />
                         </div>
                         <div>
-                            <div className="text-xs font-black uppercase tracking-widest">Precision Goal</div>
-                            <div className="text-[10px] text-gray-400 uppercase tracking-widest mt-1">Next target: Expert Tier</div>
+                            <div className="text-xs font-black uppercase tracking-widest text-white">Precision Goal</div>
+                            <div className="text-[10px] text-zinc-500 uppercase tracking-widest mt-1">Next target: Expert Tier</div>
                         </div>
                     </div>
                 </motion.section>

@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { User, Mail, Lock, ArrowRight, Loader2, ChevronRight } from "lucide-react";
 import { useStore } from "../../store/useStore";
 import { toast } from "sonner";
+import { BACKEND_URL } from "../../services/api";
 
 export default function Register() {
     const [name, setName] = useState("");
@@ -14,7 +15,7 @@ export default function Register() {
 
     const navigate = useNavigate();
     const setUser = useStore((state) => state.setUser);
-    const API_URL = "https://codeevents-tracking.onrender.com";
+    const API_URL = BACKEND_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -46,27 +47,27 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col md:flex-row text-gray-900 selection:bg-black selection:text-white">
-            <div className="w-full md:w-5/12 bg-gray-50 border-r border-gray-100 flex flex-col p-12 lg:p-20 justify-between relative overflow-hidden">
+        <div className="min-h-screen bg-black flex flex-col md:flex-row text-white selection:bg-white selection:text-black">
+            <div className="w-full md:w-5/12 bg-zinc-950 border-r border-zinc-900 flex flex-col p-12 lg:p-20 justify-between relative overflow-hidden">
                 <div className="relative z-10">
                     <Link to="/" className="flex items-center gap-2 mb-16">
-                        <div className="w-8 h-8 bg-black rounded flex items-center justify-center text-white text-[10px] font-serif">
+                        <div className="w-8 h-8 bg-zinc-800 rounded flex items-center justify-center text-white text-[10px] font-serif">
                             CE
                         </div>
-                        <span className="font-serif text-lg tracking-tight font-medium">CodeEvents</span>
+                        <span className="font-serif text-lg tracking-tight font-medium text-white">CodeEvents</span>
                     </Link>
 
-                    <h1 className="editorial-title uppercase mb-10">
+                    <h1 className="editorial-title uppercase mb-10 text-white">
                         Join the <br />
-                        <span className="italic opacity-30">Network.</span>
+                        <span className="italic opacity-30 text-white">Network.</span>
                     </h1>
 
-                    <p className="text-gray-500 font-light max-w-[280px] leading-relaxed">
+                    <p className="text-zinc-500 font-light max-w-[280px] leading-relaxed">
                         Create your competitive identity. Unified tracking for your professional coding journey.
                     </p>
                 </div>
 
-                <div className="editorial-subtitle !text-[9px] relative z-10">
+                <div className="editorial-subtitle !text-[9px] relative z-10 text-zinc-600">
                     System Protocol V 2.0 / Alpha
                 </div>
 
@@ -74,20 +75,20 @@ export default function Register() {
                 <div className="absolute -bottom-20 -left-20 w-80 h-80 bg-black/5 rounded-full blur-3xl pointer-events-none" />
             </div>
 
-            <div className="w-full md:w-7/12 flex items-center justify-center p-12 lg:p-24 bg-white">
+            <div className="w-full md:w-7/12 flex items-center justify-center p-12 lg:p-24 bg-black">
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="w-full max-w-sm space-y-12"
                 >
                     <div className="space-y-4 text-center md:text-left">
-                        <div className="editorial-subtitle">Identity Creation</div>
-                        <h2 className="text-4xl font-serif">System Initialization</h2>
+                        <div className="editorial-subtitle text-zinc-500">Identity Creation</div>
+                        <h2 className="text-4xl font-serif text-white">System Initialization</h2>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-6">
                         <div className="space-y-3">
-                            <label className="editorial-subtitle !text-black !text-[10px]">Full Name</label>
+                            <label className="editorial-subtitle !text-white !text-[10px]">Full Name</label>
                             <input
                                 value={name}
                                 onChange={(e) => setName(e.target.value)}
@@ -97,7 +98,7 @@ export default function Register() {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="editorial-subtitle !text-black !text-[10px]">Registry Email</label>
+                            <label className="editorial-subtitle !text-white !text-[10px]">Registry Email</label>
                             <input
                                 type="email"
                                 value={email}
@@ -108,7 +109,7 @@ export default function Register() {
                         </div>
 
                         <div className="space-y-3">
-                            <label className="editorial-subtitle !text-black !text-[10px]">Encryption Key</label>
+                            <label className="editorial-subtitle !text-white !text-[10px]">Encryption Key</label>
                             <input
                                 type="password"
                                 value={password}
@@ -133,10 +134,10 @@ export default function Register() {
                         </button>
                     </form>
 
-                    <div className="pt-8 border-t border-gray-50 text-center md:text-left">
-                        <p className="editorial-subtitle !text-[10px]">
+                    <div className="pt-8 border-t border-zinc-900 text-center md:text-left">
+                        <p className="editorial-subtitle !text-[10px] text-zinc-500">
                             Already Registered?{" "}
-                            <Link to="/login" className="text-black hover:opacity-50 transition-opacity">
+                            <Link to="/login" className="text-white hover:opacity-50 transition-opacity">
                                 Authenticate Node
                             </Link>
                         </p>

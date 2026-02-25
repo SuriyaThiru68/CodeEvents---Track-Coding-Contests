@@ -11,39 +11,43 @@ import { motion, AnimatePresence } from 'framer-motion';
 const calendarStyles = `
   .rdp {
     --rdp-cell-size: 50px;
-    --rdp-accent-color: #000;
-    --rdp-background-color: #f3f4f6;
+    --rdp-accent-color: #fff;
+    --rdp-background-color: #09090b;
     margin: 0;
   }
   .rdp-day_selected, .rdp-day_selected:focus-visible, .rdp-day_selected:hover {
-    background-color: #000 !important;
-    color: #fff !important;
-    border-radius: 0 !important;
+    background-color: #fff !important;
+    color: #000 !important;
+    border-radius: 12px !important;
   }
   .rdp-button:hover:not([disabled]):not(.rdp-day_selected) {
-    background-color: #facc15 !important;
-    border-radius: 0 !important;
-    color: #000 !important;
+    background-color: #1a1a1a !important;
+    border-radius: 12px !important;
+    color: #fff !important;
   }
   .rdp-day {
-    font-weight: 900 !important;
+    font-weight: 500 !important;
     text-transform: uppercase !important;
-    font-size: 1rem !important;
-    border: 2px solid transparent;
+    font-size: 0.875rem !important;
+    border: 1px solid transparent;
+    color: #a1a1aa;
   }
   .rdp-head_cell {
-    font-weight: 900 !important;
+    font-weight: 700 !important;
     text-transform: uppercase !important;
-    color: #000 !important;
+    color: #52525b !important;
     opacity: 1 !important;
+    font-size: 0.75rem !important;
+    tracking: 0.1em !important;
   }
   .rdp-month_caption {
-    font-weight: 900 !important;
+    font-weight: 700 !important;
     text-transform: uppercase !important;
-    font-size: 1.5rem !important;
-    letter-spacing: -0.05em !important;
-    font-style: italic !important;
+    font-size: 1.25rem !important;
+    letter-spacing: 0.1em !important;
+    font-family: inherit !important;
     margin-bottom: 20px !important;
+    color: #fff !important;
   }
   .has-contest, .rdp-day_hasContest {
     position: relative;
@@ -54,11 +58,10 @@ const calendarStyles = `
     bottom: 6px;
     left: 50%;
     transform: translateX(-50%);
-    width: 6px;
-    height: 6px;
-    background-color: #ef4444;
+    width: 4px;
+    height: 4px;
+    background-color: #ffffff;
     border-radius: 50%;
-    border: 1px solid #000;
   }
 
   @media (max-width: 640px) {
@@ -86,41 +89,45 @@ export default function CalendarPage() {
     };
 
     return (
-        <div className="space-y-12">
+        <div className="space-y-12 text-white">
             <style>{calendarStyles}</style>
-            <header>
-                <h1 className="text-7xl font-black uppercase tracking-tighter italic mb-4">Tactical_Calendar</h1>
-                <p className="text-xl font-bold opacity-50 uppercase tracking-widest leading-none">Strategic planning for upcoming battles</p>
+            <header className="space-y-4">
+                <div className="editorial-subtitle !text-[10px] !tracking-[0.3em] opacity-50 uppercase">Strategic Planning</div>
+                <h1 className="text-7xl font-serif italic font-black uppercase tracking-tighter text-white">
+                    Tactical_<span className="opacity-30">Calendar</span>
+                </h1>
+                <p className="text-sm font-medium opacity-40 uppercase tracking-[0.2em]">Operational intelligence for upcoming deployments</p>
             </header>
 
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-40 border-8 border-[#000] border-dashed">
-                    <Loader2 className="animate-spin mb-4" size={48} />
-                    <h3 className="text-2xl font-black uppercase tracking-widest italic opacity-40">Syncing Global Conflict Data...</h3>
+                <div className="flex flex-col items-center justify-center py-40 border border-dashed border-zinc-900 rounded-[40px]">
+                    <Loader2 className="animate-spin mb-4 text-zinc-700" size={32} />
+                    <h3 className="editorial-subtitle !text-[10px] text-zinc-500">Syncing conflict streams...</h3>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 xl:grid-cols-2 gap-12">
-                    <section className="border-8 border-[#000] bg-[#fff] p-8 shadow-[20px_20px_0px_0px_#000]">
-                        <div className="flex justify-center">
-                            <DayPicker
-                                mode="single"
-                                selected={selected}
-                                onSelect={(day) => day && setSelected(day)}
-                                modifiers={modifiers}
-                                modifiersClassNames={{
-                                    hasContest: 'has-contest'
-                                }}
-                            />
-                        </div>
+                    <section className="card-minimal p-12 flex justify-center border-zinc-900 bg-zinc-950/50">
+                        <DayPicker
+                            mode="single"
+                            selected={selected}
+                            onSelect={(day) => day && setSelected(day)}
+                            modifiers={modifiers}
+                            modifiersClassNames={{
+                                hasContest: 'has-contest'
+                            }}
+                        />
                     </section>
 
                     <section className="space-y-8">
-                        <div className="border-b-4 border-[#000] pb-4 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
-                            <h2 className="text-4xl font-black uppercase tracking-tighter italic">
-                                Battles: {format(selected, 'dd MMM yyyy')}
-                            </h2>
-                            <span className="bg-[#000] text-[#fff] px-4 py-1 font-black uppercase text-xs">
-                                {contestsOnSelectedDay.length} Events Logged
+                        <div className="border-b border-zinc-900 pb-8 flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                            <div className="space-y-1">
+                                <h2 className="text-4xl font-serif italic font-black uppercase tracking-tighter text-white">
+                                    Battles: {format(selected, 'dd MMM yyyy')}
+                                </h2>
+                                <p className="editorial-subtitle !text-[10px] text-zinc-500 uppercase tracking-widest">Incident log for selected period</p>
+                            </div>
+                            <span className="bg-zinc-800 text-white px-4 py-2 rounded-full font-black uppercase text-[10px] tracking-widest">
+                                {contestsOnSelectedDay.length} Events detected
                             </span>
                         </div>
 
@@ -134,32 +141,30 @@ export default function CalendarPage() {
                                             animate={{ opacity: 1, x: 0 }}
                                             exit={{ opacity: 0, x: -20 }}
                                             transition={{ delay: i * 0.05 }}
-                                            onClick={() => window.open(contest.url, '_blank')}
-                                            className="border-4 border-[#000] bg-[#fff] p-6 shadow-[8px_8px_0px_0px_#000] group hover:-translate-y-1 hover:shadow-[12px_12px_0px_0px_#000] transition-all cursor-pointer"
+                                            className="card-minimal p-8 group hover:-translate-y-1 transition-all cursor-default border-zinc-900"
                                         >
-
-                                            <div className="flex justify-between items-start mb-4">
-                                                <span className="text-[10px] font-black uppercase border-2 border-[#000] px-2 py-0.5 bg-[#000] text-[#fff]">
+                                            <div className="flex justify-between items-start mb-6">
+                                                <span className="text-[9px] font-black uppercase px-3 py-1 bg-zinc-800 text-white rounded-full tracking-widest">
                                                     {contest.platform}
                                                 </span>
-                                                <span className="text-xs font-black uppercase opacity-60 flex items-center gap-2">
-                                                    <Bell size={14} /> {format(parseISO(contest.date), 'HH:mm')} UTC
+                                                <span className="text-[10px] font-bold uppercase text-zinc-500 flex items-center gap-2 tracking-widest">
+                                                    <Bell size={12} /> {format(parseISO(contest.date), 'HH:mm')} UTC
                                                 </span>
                                             </div>
-                                            <h3 className="text-2xl font-black uppercase tracking-tight mb-6">
+                                            <h3 className="text-2xl font-serif italic font-black uppercase tracking-tight mb-8 text-white">
                                                 {contest.name}
                                             </h3>
-                                            <div className="flex flex-col sm:flex-row gap-4">
+                                            <div className="flex flex-col sm:flex-row gap-4 pt-6 border-t border-zinc-900">
                                                 <a
                                                     href={contest.url}
                                                     target="_blank"
                                                     rel="noopener noreferrer"
-                                                    className="flex-1 bg-[#2563eb] text-[#fff] py-3 font-black uppercase tracking-widest text-xs text-center border-4 border-[#000] hover:bg-[#1e40af] transition-colors"
+                                                    className="btn-black flex-1 justify-center !py-4 !text-[10px] !tracking-[0.2em] font-black"
                                                 >
-                                                    Register Now
+                                                    Access Node
                                                 </a>
-                                                <button className="flex-1 border-4 border-[#000] py-3 font-black uppercase tracking-widest text-xs hover:bg-[#000] hover:text-[#fff] transition-all">
-                                                    Add Intel
+                                                <button className="flex-1 border border-zinc-800 py-4 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] hover:bg-zinc-900 transition-all text-zinc-400 hover:text-white">
+                                                    Intelligence
                                                 </button>
                                             </div>
                                         </motion.div>
@@ -168,10 +173,10 @@ export default function CalendarPage() {
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
-                                        className="border-8 border-[#000] border-dashed p-20 text-center bg-[#f9fafb]"
+                                        className="card-minimal border-dashed p-20 text-center border-zinc-900 bg-zinc-950/30"
                                     >
-                                        <p className="text-3xl font-black uppercase tracking-tighter italic opacity-20">No Hostile Activity Detected_</p>
-                                        <p className="font-bold uppercase tracking-widest text-[10px] opacity-40 mt-2">Check another date for incoming operations</p>
+                                        <p className="text-3xl font-serif italic font-black uppercase tracking-tighter text-white opacity-20">No Hostile Activity Detected_</p>
+                                        <p className="editorial-subtitle !text-[9px] text-zinc-500 uppercase tracking-widest mt-4">Check another date for incoming operations</p>
                                     </motion.div>
                                 )}
                             </AnimatePresence>

@@ -2,6 +2,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { fetchContests, fetchCFUser, fetchLCUser, fetchCodeChefUser, fetchAtCoderUser } from '../services/api';
+import { getTracker, EVENT_TYPES } from '../services/behaviorTracker';
 
 export const useStore = create(
     persist(
@@ -59,6 +60,8 @@ export const useStore = create(
                                 codeforces: { ...state.userProfiles.codeforces, rating: data.rating, rank: data.rank, solved: data.solved }
                             }
                         }));
+                        get().addRatingEntry({ platform: 'codeforces', rating: data.rating });
+                        try { getTracker().track(EVENT_TYPES.RATING_UPDATE, { platform: 'codeforces', rating: data.rating }); } catch { }
                     }
                 } else if (platform === 'leetcode') {
                     data = await fetchLCUser(username);
@@ -121,6 +124,7 @@ export const useStore = create(
 
             markAttended: (id, result) => set((state) => {
                 const contest = state.contests.find(c => c.id === id);
+                try { getTracker().track(EVENT_TYPES.CONTEST_ATTENDED, { contestId: id, platform: contest?.platform }); } catch { }
                 return {
                     contests: state.contests.filter(c => c.id !== id),
                     attendedContests: [{ ...contest, ...result, status: 'Attended' }, ...state.attendedContests]
@@ -129,11 +133,22 @@ export const useStore = create(
 
             markMissed: (id) => set((state) => {
                 const contest = state.contests.find(c => c.id === id);
+                try { getTracker().track(EVENT_TYPES.CONTEST_MISSED, { contestId: id, platform: contest?.platform }); } catch { }
                 return {
                     contests: state.contests.filter(c => c.id !== id),
                     missedContests: [{ ...contest, status: 'Missed' }, ...state.missedContests]
                 };
             }),
+
+            // AI Analysis cache
+            lastAIAnalysis: null,
+            setLastAIAnalysis: (data) => set({ lastAIAnalysis: data }),
+
+            // Rating history per platform
+            ratingHistory: [],
+            addRatingEntry: (entry) => set((state) => ({
+                ratingHistory: [...state.ratingHistory, { ...entry, timestamp: Date.now() }].slice(-200)
+            })),
         }),
         {
             name: 'codeevents-storage',

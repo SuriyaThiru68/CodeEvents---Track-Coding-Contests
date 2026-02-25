@@ -16,6 +16,16 @@ const startReminderWorker = (intervalMs = 30 * 1000) => {
 
             for (const r of due) {
                 try {
+                    // Safety check: Skip if the scheduled time is more than 1 hour ago (stale catch-up)
+                    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
+                    if (new Date(r.sendAt) < oneHourAgo) {
+                        console.log(`Skipping stale reminder for ${r.contest?.name} (scheduled for ${r.sendAt})`);
+                        r.sent = true;
+                        r.lastError = 'Auto-skipped: Past due threshold (stale)';
+                        await r.save();
+                        continue;
+                    }
+
                     // sendReminderEmail is attached to the router file
                     if (typeof remindersRoute.sendReminderEmail === 'function') {
                         await remindersRoute.sendReminderEmail(r.email, r.contest);

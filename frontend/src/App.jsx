@@ -14,6 +14,7 @@ import Attended from './pages/Attended';
 import Missed from './pages/Missed';
 import Notes from './pages/Notes';
 import Analytics from './pages/Analytics';
+import AIAnalytics from './pages/AIAnalytics';
 import Playground from './pages/Playground';
 import Landing from './pages/Landing';
 import Profile from './pages/Profile';
@@ -35,14 +36,20 @@ export default function App() {
                 position="top-right"
                 expand={true}
                 richColors
+                theme="dark"
                 className="font-sans"
                 toastOptions={{
                     className: 'font-sans',
                     style: {
-                        borderRadius: '8px',
-                        border: '1px solid #E5E7EB',
-                        boxShadow: '0 4px 12px rgba(0,0,0,0.05)',
-                        fontSize: '13px',
+                        borderRadius: '16px',
+                        border: '1px solid #18181b',
+                        boxShadow: '0 8px 32px rgba(0,0,0,0.5)',
+                        fontSize: '12px',
+                        background: '#09090b',
+                        color: '#fff',
+                        fontWeight: '600',
+                        letterSpacing: '0.05em',
+                        textTransform: 'uppercase'
                     }
                 }}
             />
@@ -58,6 +65,7 @@ export default function App() {
                 <Route path="/missed" element={<ProtectedRoute><Missed /></ProtectedRoute>} />
                 <Route path="/notes" element={<ProtectedRoute><Notes /></ProtectedRoute>} />
                 <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
+                <Route path="/ai-analytics" element={<ProtectedRoute><AIAnalytics /></ProtectedRoute>} />
                 <Route path="/playground" element={<ProtectedRoute><Playground /></ProtectedRoute>} />
                 <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
                 <Route path="/calendar" element={<ProtectedRoute><CalendarPage /></ProtectedRoute>} />

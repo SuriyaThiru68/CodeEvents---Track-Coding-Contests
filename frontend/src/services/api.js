@@ -9,7 +9,7 @@ const ATCODER_API = 'https://kenkoooo.com/atcoder/atcoder-api/v3/user/info?user=
 const CLIST_API_URL = 'https://clist.by/api/v4/contest/';
 const CLIST_KEY = 'ApiKey alighter:11de134ba4e27ba11733cbefc077f4183eaf08f8';
 
-const BACKEND_URL = window.location.hostname === 'localhost'
+export const BACKEND_URL = window.location.hostname === 'localhost'
     ? 'http://localhost:4000'
     : 'https://codeevents-tracking.onrender.com';
 

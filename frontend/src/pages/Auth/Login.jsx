@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { Mail, Lock, ArrowRight, Loader2, ChevronRight } from "lucide-react";
 import { useStore } from "../../store/useStore";
 import { toast } from "sonner";
+import { BACKEND_URL } from "../../services/api";
 
 export default function Login() {
     const [email, setEmail] = useState("");
@@ -13,7 +14,7 @@ export default function Login() {
 
     const navigate = useNavigate();
     const setUser = useStore((state) => state.setUser);
-    const API_URL = "https://codeevents-tracking.onrender.com";
+    const API_URL = BACKEND_URL;
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -53,45 +54,45 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex flex-col md:flex-row text-gray-900 selection:bg-black selection:text-white">
-            <div className="w-full md:w-5/12 bg-gray-50 border-r border-gray-100 flex flex-col p-12 lg:p-20 justify-between relative overflow-hidden">
+        <div className="min-h-screen bg-black flex flex-col md:flex-row text-white selection:bg-white selection:text-black">
+            <div className="w-full md:w-5/12 bg-zinc-950 border-r border-zinc-900 flex flex-col p-12 lg:p-20 justify-between relative overflow-hidden">
                 <div className="relative z-10">
                     <Link to="/" className="flex items-center gap-2 mb-16">
-                        <div className="w-8 h-8 bg-black rounded flex items-center justify-center text-white text-[10px] font-serif">
+                        <div className="w-8 h-8 bg-zinc-800 rounded flex items-center justify-center text-white text-[10px] font-serif">
                             CE
                         </div>
-                        <span className="font-serif text-lg tracking-tight font-medium">CodeEvents</span>
+                        <span className="font-serif text-lg tracking-tight font-medium text-white">CodeEvents</span>
                     </Link>
 
-                    <h1 className="editorial-title uppercase mb-10">
+                    <h1 className="editorial-title uppercase mb-10 text-white">
                         Login to <br />
-                        <span className="italic opacity-30">Command.</span>
+                        <span className="italic opacity-30 text-white">Command.</span>
                     </h1>
 
-                    <p className="text-gray-500 font-light max-w-[280px] leading-relaxed">
+                    <p className="text-zinc-500 font-light max-w-[280px] leading-relaxed">
                         Secure access to your coding intelligence hub. Contests, analytics, and tactical notes in one place.
                     </p>
                 </div>
 
-                <div className="editorial-subtitle !text-[9px] relative z-10">
+                <div className="editorial-subtitle !text-[9px] relative z-10 text-zinc-600">
                     System Node V 2.0 / Secure
                 </div>
             </div>
 
-            <div className="w-full md:w-7/12 flex items-center justify-center p-12 lg:p-24 bg-white">
+            <div className="w-full md:w-7/12 flex items-center justify-center p-12 lg:p-24 bg-black">
                 <motion.div
                     initial={{ opacity: 0, x: 20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="w-full max-w-sm space-y-12"
                 >
                     <div className="space-y-4 text-center md:text-left">
-                        <div className="editorial-subtitle">Security Authentication</div>
-                        <h2 className="text-4xl font-serif">Access Credentials</h2>
+                        <div className="editorial-subtitle text-zinc-500">Security Authentication</div>
+                        <h2 className="text-4xl font-serif text-white">Access Credentials</h2>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-8">
                         <div className="space-y-3">
-                            <label className="editorial-subtitle !text-black !text-[10px]">Registry Email</label>
+                            <label className="editorial-subtitle !text-white !text-[10px]">Registry Email</label>
                             <input
                                 type="email"
                                 value={email}
@@ -103,8 +104,8 @@ export default function Login() {
 
                         <div className="space-y-3">
                             <div className="flex justify-between items-end">
-                                <label className="editorial-subtitle !text-black !text-[10px]">Access Core Key</label>
-                                <button type="button" className="text-[10px] font-bold uppercase tracking-widest text-gray-300 hover:text-black transition-colors">Forgot Key?</button>
+                                <label className="editorial-subtitle !text-white !text-[10px]">Access Core Key</label>
+                                <button type="button" className="text-[10px] font-bold uppercase tracking-widest text-zinc-500 hover:text-white transition-colors">Forgot Key?</button>
                             </div>
                             <input
                                 type="password"
@@ -130,10 +131,10 @@ export default function Login() {
                         </button>
                     </form>
 
-                    <div className="pt-8 border-t border-gray-50 text-center md:text-left">
-                        <p className="editorial-subtitle !text-[10px]">
+                    <div className="pt-8 border-t border-zinc-900 text-center md:text-left">
+                        <p className="editorial-subtitle !text-[10px] text-zinc-500">
                             Not Registered?{" "}
-                            <Link to="/register" className="text-black hover:opacity-50 transition-opacity">
+                            <Link to="/register" className="text-white hover:opacity-50 transition-opacity">
                                 Initialize New Node
                             </Link>
                         </p>
