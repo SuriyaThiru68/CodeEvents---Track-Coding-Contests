@@ -103,7 +103,11 @@ export const useStore = create(
             stats: {
                 currentStreak: 14,
                 maxStreak: 45,
-                activityData: Array.from({ length: 365 }, (_, i) => Math.floor(Math.random() * 5)),
+                // Seeded activity data — deterministic so it doesn't re-randomize on each render
+                activityData: Array.from({ length: 365 }, (_, i) => {
+                    const seed = (i * 2654435761) >>> 0;
+                    return seed % 5 < 2 ? 0 : seed % 5 < 3 ? 1 : seed % 5 < 4 ? 2 : seed % 5 < 5 ? 3 : 4;
+                }),
             },
             profileImage: null,
             setProfileImage: (img) => set({ profileImage: img }),

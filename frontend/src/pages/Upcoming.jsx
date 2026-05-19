@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
@@ -46,28 +45,33 @@ export default function Upcoming() {
 
     const submitAlert = async () => {
         if (!alertData.email) {
-            toast.error('Uplink email required.');
+            toast.error('Email address is required to set an alert.');
             return;
         }
 
-        toast.promise(scheduleReminder(selectedContest, parseInt(alertData.time), alertData.email), {
-            loading: 'Synchronizing alert...',
-            success: 'Alert deployed. Check your registry mail.',
-            error: 'Uplink synchronization failure.'
-        });
-        setSelectedContest(null);
+        const toastId = toast.loading('Setting alert & sending confirmation...');
+        try {
+            const result = await scheduleReminder(selectedContest, parseInt(alertData.time), alertData.email);
+            toast.success(
+                `Alert set! Confirmation sent to ${alertData.email}. You'll be reminded ${alertData.time} min before the contest.`,
+                { id: toastId, duration: 6000 }
+            );
+            setSelectedContest(null);
+        } catch (err) {
+            toast.error('Failed to set alert. Please try again.', { id: toastId });
+        }
     };
 
     return (
-        <div className="max-w-7xl mx-auto space-y-16 relative text-white">
-            <header className="space-y-4 pt-16">
-                <div className="editorial-subtitle !text-[10px] !tracking-[0.3em] opacity-50">Global Coding Ecosystem</div>
+        <div className="max-w-7xl mx-auto space-y-16 relative text-[#fafafa] pt-6">
+            <header className="space-y-4">
+                <div className="text-[10px] font-bold tracking-[0.3em] uppercase text-[#4BB8FA]">Event Calendar</div>
                 <div className="flex flex-col">
-                    <h1 className="text-[6rem] md:text-[8rem] font-serif italic font-black leading-[1.1] tracking-tighter uppercase text-white pt-4">
+                    <h1 className="text-[5rem] md:text-[6.5rem] font-light leading-[0.95] tracking-tighter uppercase text-white">
                         Upcoming
                     </h1>
-                    <h1 className="text-[6rem] md:text-[8rem] font-serif italic font-black leading-[1.1] tracking-tighter uppercase text-white/10">
-                        Contests.
+                    <h1 className="text-3xl md:text-5xl font-normal tracking-tight text-zinc-500 pt-2">
+                        events.
                     </h1>
                 </div>
 
@@ -76,27 +80,27 @@ export default function Upcoming() {
                         <input
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search archives by name or node..."
-                            className="input-minimal px-10 h-20 !text-lg !bg-zinc-900 border-zinc-800 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.3)] focus:shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)]"
+                            placeholder="Search events..."
+                            className="w-full px-10 h-20 bg-[#121214] border border-zinc-800 rounded-[2rem] text-lg font-normal uppercase tracking-[0.1em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-500 text-white shadow-sm"
                         />
                     </div>
                     <div className="relative flex-[1] w-full md:w-auto">
                         <select
                             value={platformFilter}
                             onChange={(e) => setPlatformFilter(e.target.value)}
-                            className="input-minimal px-10 h-20 appearance-none cursor-pointer pr-16 w-full !text-sm font-black uppercase tracking-widest !bg-zinc-900 border-zinc-800 shadow-[0_2px_15px_-3px_rgba(0,0,0,0.3)]"
+                            className="w-full md:w-auto px-10 h-20 bg-[#121214] border border-zinc-800 rounded-[2rem] appearance-none cursor-pointer pr-16 text-sm font-semibold uppercase tracking-widest text-white outline-none hover:border-[#4BB8FA]/40 transition-all shadow-sm"
                         >
-                            {platforms.map(p => <option key={p} value={p}>{p}</option>)}
+                            {platforms.map(p => <option key={p} value={p} className="bg-[#121214]">{p}</option>)}
                         </select>
-                        <ChevronDown className="absolute right-8 top-1/2 -translate-y-1/2 text-white/20 pointer-events-none" size={20} strokeWidth={2.5} />
+                        <ChevronDown className="absolute right-8 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={20} strokeWidth={2.5} />
                     </div>
                 </div>
             </header>
 
             {isLoading ? (
-                <div className="flex flex-col items-center justify-center py-40 border border-dashed border-zinc-900 rounded-3xl">
-                    <Loader2 className="animate-spin mb-4 text-zinc-700" size={32} strokeWidth={1.5} />
-                    <h3 className="editorial-subtitle !text-[10px] text-zinc-500">Synchronizing archive...</h3>
+                <div className="flex flex-col items-center justify-center py-40 border border-dashed border-zinc-800 rounded-[3rem]">
+                    <Loader2 className="animate-spin mb-4 text-[#4BB8FA]" size={32} strokeWidth={1.5} />
+                    <h3 className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Loading Events...</h3>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
@@ -115,48 +119,48 @@ export default function Upcoming() {
                                 duration: 0.8,
                                 ease: [0.16, 1, 0.3, 1]
                             }}
-                            className="card-minimal flex flex-col p-10 group relative overflow-hidden cursor-default shadow-sm hover:shadow-2xl hover:shadow-black/5"
+                            className="bg-[#121214] border border-zinc-800 flex flex-col p-10 group relative overflow-hidden cursor-default shadow-sm hover:border-[#4BB8FA]/40 rounded-[2.5rem] transition-all"
                         >
-                            <div className="absolute top-0 right-0 w-24 h-24 bg-zinc-800 rounded-bl-full translate-x-8 -translate-y-8" />
+                            <div className="absolute top-0 right-0 w-24 h-24 bg-[#4BB8FA]/5 rounded-bl-full translate-x-8 -translate-y-8 group-hover:bg-[#4BB8FA]/10 transition-colors" />
 
                             <div className="flex justify-between items-start mb-8 relative z-10">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                                    <span className="editorial-subtitle !text-[10px] !text-zinc-500">{contest.platform}</span>
+                                    <div className="w-1.5 h-1.5 rounded-full bg-[#4BB8FA]" />
+                                    <span className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-400">{contest.platform}</span>
                                 </div>
                             </div>
 
-                            <h3 className="text-2xl font-serif mb-8 leading-tight h-20 line-clamp-2 pr-12 text-white">
+                            <h3 className="text-2xl font-light mb-8 leading-tight h-20 line-clamp-2 pr-12 text-white tracking-tight uppercase">
                                 {contest.name}
                             </h3>
 
                             <div className="space-y-4 mb-12 flex-1 relative z-10">
-                                <div className="flex items-center gap-4 text-[11px] uppercase tracking-widest font-bold text-zinc-400">
+                                <div className="flex items-center gap-4 text-[11px] uppercase tracking-widest font-bold text-zinc-500">
                                     <span>{new Date(contest.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })}</span>
                                     <span className="opacity-20">•</span>
                                     <span>{new Date(contest.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
                                 </div>
                                 <div className="flex gap-2">
-                                    <span className="bg-zinc-900 text-[9px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest text-zinc-400">{contest.duration}</span>
-                                    <span className="bg-zinc-900 text-[9px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest text-zinc-400">Mixed</span>
+                                    <span className="bg-[#4BB8FA]/10 border border-[#4BB8FA]/20 text-[9px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest text-[#4BB8FA]">{contest.duration}</span>
+                                    <span className="bg-zinc-800/40 border border-zinc-700/50 text-[9px] px-3 py-1.5 rounded-full font-bold uppercase tracking-widest text-zinc-400">Global</span>
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-6 pt-8 relative z-10 border-t border-zinc-900">
+                            <div className="flex flex-col gap-6 pt-8 relative z-10 border-t border-zinc-800">
                                 <a
                                     href={contest.url}
                                     target="_blank"
                                     rel="noreferrer"
-                                    className="btn-black w-full justify-center !py-4 shadow-xl shadow-black/5 !text-xs font-bold tracking-[0.1em]"
+                                    className="px-8 py-4 bg-[#4BB8FA] hover:bg-[#0F9BF2] text-black rounded-[2rem] text-[10px] font-bold uppercase tracking-[0.2em] transition-all flex items-center justify-center gap-3 shadow-lg shadow-[#4BB8FA]/5 text-center font-semibold"
                                 >
-                                    Access Node <ExternalLink size={14} className="ml-2" />
+                                    View Event <ExternalLink size={14} className="ml-2" />
                                 </a>
                                 <div className="flex justify-center">
                                     <button
                                         onClick={() => handleCreateAlert(contest)}
-                                        className="text-[10px] font-black uppercase tracking-[0.3em] text-zinc-500 hover:text-white transition-colors"
+                                        className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-500 hover:text-[#4BB8FA] transition-colors"
                                     >
-                                        Initialize Alert
+                                        Add Alert
                                     </button>
                                 </div>
                             </div>
@@ -173,76 +177,72 @@ export default function Upcoming() {
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
                             onClick={() => setSelectedContest(null)}
-                            className="absolute inset-0 bg-black/60 backdrop-blur-md"
+                            className="absolute inset-0 bg-black/80 backdrop-blur-md"
                         />
                         <motion.div
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="bg-zinc-900 w-full max-w-xl rounded-[40px] p-16 shadow-[0_40px_100px_-20px_rgba(0,0,0,0.8)] relative z-10 border border-zinc-800"
+                            className="bg-[#121214] w-full max-w-xl rounded-[3rem] p-16 shadow-2xl relative z-10 border border-zinc-800"
                         >
                             <button
                                 onClick={() => setSelectedContest(null)}
-                                className="absolute top-10 right-10 text-zinc-500 hover:text-white transition-colors"
+                                className="absolute top-10 right-10 text-zinc-500 hover:text-white transition-colors cursor-pointer"
                             >
                                 <X size={28} strokeWidth={1.5} />
                             </button>
 
                             <div className="space-y-12">
                                 <div className="space-y-4">
-                                    <div className="editorial-subtitle !text-[12px] !tracking-[0.4em] opacity-40">Protocol Initialization</div>
-                                    <h2 className="text-5xl font-serif italic font-black leading-none text-white">Deploy Alert.</h2>
-                                    <p className="text-[11px] text-zinc-500 uppercase tracking-widest leading-relaxed border-l-2 border-zinc-800 pl-4">{selectedContest.name}</p>
+                                    <div className="text-[12px] font-bold tracking-[0.4em] uppercase text-[#4BB8FA]">Notifications</div>
+                                    <h2 className="text-4xl font-light leading-none text-white">Get Alerted.</h2>
+                                    <p className="text-[11px] text-zinc-400 uppercase tracking-widest leading-relaxed border-l-2 border-[#4BB8FA] pl-4">{selectedContest.name}</p>
                                 </div>
 
                                 <div className="space-y-8">
                                     <div className="space-y-3">
-                                        <label className="editorial-subtitle !text-[10px] !text-white font-black tracking-[0.2em]">Registry Email</label>
-                                        <div className="relative">
-                                            <input
-                                                value={alertData.email}
-                                                onChange={(e) => setAlertData({ ...alertData, email: e.target.value })}
-                                                className="input-minimal px-8 !py-5 !text-sm !bg-black/50 border-zinc-800 rounded-2xl"
-                                                placeholder="coder@gmail.com"
-                                            />
-                                        </div>
+                                        <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Email</label>
+                                        <input
+                                            value={alertData.email}
+                                            onChange={(e) => setAlertData({ ...alertData, email: e.target.value })}
+                                            className="w-full px-8 py-5 bg-zinc-950 border border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white"
+                                            placeholder="you@email.com"
+                                        />
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="editorial-subtitle !text-[10px] !text-white font-black tracking-[0.2em]">Pre-Contest Buffer (Minutes)</label>
+                                        <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Alert Time</label>
                                         <div className="relative">
                                             <select
                                                 value={alertData.time}
                                                 onChange={(e) => setAlertData({ ...alertData, time: e.target.value })}
-                                                className="input-minimal px-8 !py-5 !text-sm appearance-none !bg-black/50 border-zinc-800 rounded-2xl cursor-pointer"
+                                                className="w-full px-8 py-5 bg-zinc-950 border border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] appearance-none cursor-pointer outline-none hover:border-[#4BB8FA]/40 transition-all text-white"
                                             >
-                                                <option value="5">5 Minutes Before</option>
-                                                <option value="15">15 Minutes Before</option>
-                                                <option value="30">30 Minutes Before</option>
-                                                <option value="60">1 Hour Before</option>
+                                                <option value="5" className="bg-[#121214]">5 Mins Before</option>
+                                                <option value="15" className="bg-[#121214]">15 Mins Before</option>
+                                                <option value="30" className="bg-[#121214]">30 Mins Before</option>
+                                                <option value="60" className="bg-[#121214]">1 Hour Before</option>
                                             </select>
                                             <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
                                         </div>
                                     </div>
 
                                     <div className="space-y-3">
-                                        <label className="editorial-subtitle !text-[10px] !text-white font-black tracking-[0.2em]">Transmission Notes</label>
-                                        <div className="relative">
-                                            <textarea
-                                                value={alertData.notes}
-                                                onChange={(e) => setAlertData({ ...alertData, notes: e.target.value })}
-                                                className="input-minimal px-8 !py-6 !text-sm h-32 resize-none !bg-black/50 border-zinc-800 rounded-2xl"
-                                                placeholder="Reminder for node access..."
-                                            />
-                                        </div>
+                                        <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Notes</label>
+                                        <textarea
+                                            value={alertData.notes}
+                                            onChange={(e) => setAlertData({ ...alertData, notes: e.target.value })}
+                                            className="w-full px-8 py-6 bg-zinc-950 border border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.1em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white h-32 resize-none"
+                                            placeholder="Extra notes..."
+                                        />
                                     </div>
                                 </div>
 
                                 <button
                                     onClick={submitAlert}
-                                    className="btn-black w-full justify-center !py-6 !text-lg !rounded-[100px] shadow-[0_20px_40px_-10px_rgba(0,0,0,0.2)]"
+                                    className="px-8 py-6 bg-white hover:bg-zinc-200 text-black font-semibold rounded-[100px] text-[10px] font-bold uppercase tracking-[0.3em] transition-all w-full shadow-lg cursor-pointer"
                                 >
-                                    Sync Alert System
+                                    Save Alert
                                 </button>
                             </div>
                         </motion.div>
@@ -252,8 +252,8 @@ export default function Upcoming() {
 
             {!isLoading && filteredContests.length === 0 && (
                 <div className="py-40 text-center">
-                    <div className="editorial-title italic opacity-10">EmptyArchive_</div>
-                    <p className="mt-4 editorial-subtitle !text-[10px]">No active data streams detected for this query.</p>
+                    <div className="text-8xl font-light text-zinc-800 font-bold">Empty.</div>
+                    <p className="mt-4 text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">No events found.</p>
                 </div>
             )}
         </div>

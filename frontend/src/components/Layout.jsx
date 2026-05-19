@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -17,27 +16,34 @@ import {
     ChevronLeft,
     ChevronRight,
     Bell,
-    Plus,
     CalendarDays,
     Brain
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 
+
 const SidebarItem = ({ icon: Icon, label, path, active }) => (
-    <Link to={path} className="w-full">
-        <div className={`sidebar-item flex items-center justify-start gap-4 px-6 w-full ${active ? 'active' : ''}`}>
-            <Icon size={18} strokeWidth={1.5} className={active ? 'text-white' : 'text-zinc-500'} />
-            <span className={`editorial-subtitle !text-[10px] !tracking-wider ${active ? '!text-white !font-bold' : '!text-zinc-500'}`}>
+    <Link to={path} className="w-full block px-4">
+        <div className={`sidebar-item relative flex items-center justify-start gap-3 px-4 w-full ${active ? 'active' : ''}`}>
+            <Icon size={20} strokeWidth={active ? 2.2 : 1.8} className={active ? 'text-black' : 'text-zinc-500 group-hover:text-zinc-300 transition-colors'} />
+            <span className={`text-sm font-semibold tracking-normal ${active ? 'text-black font-semibold' : 'text-[#7C7872] group-hover:text-white transition-colors'}`}>
                 {label}
             </span>
             {active && (
                 <motion.div
                     layoutId="sidebar-active-indicator"
-                    className="absolute left-0 w-1 h-6 bg-white rounded-r-full"
+                    className="absolute right-4 w-2 h-2 bg-black rounded-full"
+                    transition={{ type: 'spring', stiffness: 350, damping: 30 }}
                 />
             )}
         </div>
     </Link>
+);
+
+const SectionLabel = ({ label }) => (
+    <div className="px-6 pt-6 pb-2">
+        <span className="text-xs font-bold tracking-widest uppercase text-zinc-500">{label}</span>
+    </div>
 );
 
 const Sidebar = ({ isCollapsed }) => {
@@ -45,32 +51,51 @@ const Sidebar = ({ isCollapsed }) => {
     const navigate = useNavigate();
     const { setUser } = useStore();
 
-    const menuItems = [
+    const navItems = [
         { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
         { icon: Calendar, label: 'Upcoming', path: '/upcoming' },
         { icon: CheckCircle2, label: 'Attended', path: '/attended' },
         { icon: XCircle, label: 'Missed', path: '/missed' },
         { icon: StickyNote, label: 'Notes', path: '/notes' },
+        { icon: CalendarDays, label: 'Calendar', path: '/calendar' },
+    ];
+
+    const toolItems = [
         { icon: BarChart3, label: 'Analytics', path: '/analytics' },
         { icon: Brain, label: 'AI Analytics', path: '/ai-analytics' },
         { icon: Terminal, label: 'Playground', path: '/playground' },
-        { icon: CalendarDays, label: 'Calendar', path: '/calendar' },
     ];
 
     return (
         <aside
-            className={`fixed left-0 top-0 h-screen transition-all duration-700 ease-[0.16,1,0.3,1] border-r border-zinc-900 bg-black z-[70] flex flex-col pt-12 pb-10 gap-16 ${isCollapsed ? 'w-0 -translate-x-full' : 'w-72 translate-x-0'}`}
+            className={`fixed left-0 top-0 h-screen transition-all duration-700 ease-[0.16,1,0.3,1] border-r border-[#EAE5DC]/10 z-[70] flex flex-col pt-8 pb-8 overflow-hidden bg-[#09090b] ${isCollapsed ? 'w-0 opacity-0 pointer-events-none' : 'w-64 opacity-100'}`}
         >
-            <div className="px-10 flex items-center gap-4">
-                <div className="w-10 h-10 bg-zinc-800 rounded-xl flex items-center justify-center text-white font-serif text-base shadow-xl shadow-black/20">
+            {/* Logo */}
+            <div className="px-6 flex items-center gap-3 mb-10 flex-shrink-0">
+                <div className="w-10 h-10 bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] rounded-xl flex items-center justify-center text-black font-bold text-sm flex-shrink-0 shadow-lg shadow-[#4BB8FA]/20">
                     CE
                 </div>
-                <span className="font-serif text-2xl tracking-tighter font-black italic text-white">CodeEvents</span>
+                <span className="font-sans text-xl tracking-tight font-bold text-white whitespace-nowrap">
+                    Code<span className="text-[#4BB8FA]">Events</span>
+                </span>
             </div>
 
-            <div className="flex-1 flex flex-col gap-1 overflow-y-auto custom-scrollbar">
-                <div className="space-y-1">
-                    {menuItems.map((item) => (
+            {/* Scrollable Nav */}
+            <div className="flex-1 flex flex-col overflow-y-auto custom-scrollbar">
+                <SectionLabel label="Navigation" />
+                <div className="space-y-1 px-2">
+                    {navItems.map((item) => (
+                        <SidebarItem
+                            key={item.path}
+                            {...item}
+                            active={location.pathname === item.path}
+                        />
+                    ))}
+                </div>
+
+                <SectionLabel label="Tools" />
+                <div className="space-y-1 px-2">
+                    {toolItems.map((item) => (
                         <SidebarItem
                             key={item.path}
                             {...item}
@@ -80,16 +105,19 @@ const Sidebar = ({ isCollapsed }) => {
                 </div>
             </div>
 
-            <div className="flex flex-col gap-1 pt-10 border-t border-zinc-900 pb-4">
-                <div className="px-10 editorial-subtitle !text-[9px] mb-6 opacity-40 font-black tracking-[0.3em]">Identity Node</div>
-                <div className="space-y-1">
+            {/* Bottom Section */}
+            <div className="flex flex-col gap-1 pt-6 border-t border-[#EAE5DC]/10 flex-shrink-0">
+                <SectionLabel label="Account" />
+                <div className="px-2">
                     <SidebarItem icon={User} label="Profile" path="/profile" active={location.pathname === '/profile'} />
                     <button
                         onClick={() => { setUser(null); navigate('/login'); }}
-                        className="sidebar-item flex items-center gap-4 px-10 hover:bg-red-950/20 group transition-all duration-300 w-full text-left"
+                        className="sidebar-item relative flex items-center gap-3 px-4 hover:bg-red-500/10 group transition-all duration-300 w-full text-left mt-1"
                     >
-                        <LogOut size={18} strokeWidth={1.5} className="text-zinc-500 group-hover:text-red-500" />
-                        <span className="editorial-subtitle !text-[10px] !text-zinc-500 font-bold group-hover:text-red-500">Initialize Logout</span>
+                        <LogOut size={20} strokeWidth={1.8} className="text-zinc-500 group-hover:text-red-400 transition-colors" />
+                        <span className="text-sm font-semibold tracking-normal text-zinc-400 group-hover:text-red-400 transition-colors">
+                            Sign Out
+                        </span>
                     </button>
                 </div>
             </div>
@@ -97,7 +125,7 @@ const Sidebar = ({ isCollapsed }) => {
     );
 };
 
-export const Layout = ({ children }) => {
+export default function LayoutWrapper({ children }) {
     const location = useLocation();
     const isAuthPage = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/';
     const user = useStore(state => state.user);
@@ -107,9 +135,9 @@ export const Layout = ({ children }) => {
     if (isAuthPage) return children;
 
     return (
-        <div className="min-h-screen bg-black text-zinc-100 selection:bg-white selection:text-black">
+        <div className="min-h-screen bg-[#09090b] text-[#fafafa] selection:bg-[#4BB8FA] selection:text-black">
             <Sidebar isCollapsed={isCollapsed} />
-            <main className={`transition-all duration-500 min-h-screen ${isCollapsed ? 'ml-0' : 'ml-72'}`}>
+            <main className={`transition-all duration-700 ease-[0.16,1,0.3,1] min-h-screen ${isCollapsed ? 'ml-0' : 'ml-64'}`}>
                 {/* Global Sync Progress Bar */}
                 <AnimatePresence>
                     {useStore(state => state.isLoading) && (
@@ -117,42 +145,42 @@ export const Layout = ({ children }) => {
                             initial={{ width: 0, opacity: 0 }}
                             animate={{ width: '100%', opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="fixed top-0 left-0 right-0 h-1 bg-white z-[100] shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+                            className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#4BB8FA] to-[#0F9BF2] z-[100] shadow-lg shadow-[#4BB8FA]/20"
                         />
                     )}
                 </AnimatePresence>
 
-                <header className="px-12 py-6 flex justify-between items-center bg-black/60 backdrop-blur-xl sticky top-0 z-50 border-b border-zinc-900">
+                <header className="px-8 py-6 flex justify-between items-center bg-[#09090b]/80 backdrop-blur-xl sticky top-0 z-50 border-b border-[#EAE5DC]/10">
                     <div className="flex items-center gap-8">
                         <button
                             onClick={() => setIsCollapsed(!isCollapsed)}
-                            className="p-2.5 hover:bg-zinc-900 rounded-xl transition-all duration-300 text-zinc-500 hover:text-white border border-transparent hover:border-zinc-800 shadow-sm hover:shadow-md"
+                            className="p-2 hover:bg-zinc-800 rounded-lg transition-all duration-300 text-zinc-400 hover:text-white border border-transparent hover:border-zinc-700 cursor-pointer"
                         >
-                            {isCollapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
+                            {isCollapsed ? <ChevronRight size={20} /> : <ChevronLeft size={20} />}
                         </button>
-                        <div className="editorial-subtitle !text-[10px] !tracking-[0.4em] opacity-30">
-                            {location.pathname.replace('/', '').toUpperCase() || 'DASHBOARD'}
+                        <div className="text-sm font-bold tracking-wider uppercase text-zinc-400">
+                            {location.pathname.replace('/', '').toUpperCase() || 'Dashboard'}
                         </div>
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <button className="text-zinc-500 hover:text-white transition-all duration-300 hover:scale-110">
-                            <Bell size={18} strokeWidth={1.5} />
+                        <button className="text-zinc-400 hover:text-white transition-all duration-300 hover:scale-110 cursor-pointer">
+                            <Bell size={20} strokeWidth={1.8} />
                         </button>
-                        <Link to="/profile" className="w-10 h-10 rounded-full bg-zinc-900 border border-zinc-800 flex items-center justify-center font-bold text-[10px] text-zinc-500 shadow-inner group cursor-pointer hover:border-white transition-colors overflow-hidden">
+                        <Link to="/profile" className="w-10 h-10 rounded-lg bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] flex items-center justify-center font-bold text-xs text-black shadow-md shadow-[#4BB8FA]/20 group cursor-pointer hover:shadow-[#4BB8FA]/40 transition-all border border-[#4BB8FA]/30">
                             {user?.name?.[0] || 'U'}
                         </Link>
                     </div>
                 </header>
 
-                <div className="px-12 pb-32">
+                <div className="px-8 py-8 pb-32">
                     <AnimatePresence mode="wait" initial={false}>
                         <motion.div
                             key={location.pathname}
-                            initial={{ opacity: 0, scale: 0.99, filtering: 'blur(10px)' }}
-                            animate={{ opacity: 1, scale: 1, filtering: 'blur(0px)' }}
-                            exit={{ opacity: 0, scale: 1.01, filtering: 'blur(10px)' }}
-                            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, y: -15 }}
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                         >
                             {children}
                         </motion.div>
@@ -162,3 +190,5 @@ export const Layout = ({ children }) => {
         </div>
     );
 };
+
+export { LayoutWrapper as Layout };

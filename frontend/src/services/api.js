@@ -49,27 +49,59 @@ export const fetchContests = async () => {
             console.log('First contest structure sample:', JSON.stringify(data.objects[0], null, 2));
         }
 
-        return data.objects
-            .map((c, index) => ({
-                id: c.id || index,
-                name: c.event,
-                platform: normalizePlatform(c.host || c.resource?.name || c.resource || 'Unknown'),
-                url: c.href,
-                date: c.start,
-                end: c.end,
-                duration: formatDuration(c.duration),
-                status: 'upcoming',
-                difficulty: 'Mixed'
-            }));
+        // Translate non-English contest names in parallel (max 20 to avoid rate limits)
+        const rawContests = data.objects.map((c, index) => ({
+            id: c.id || index,
+            name: c.event,
+            platform: normalizePlatform(c.host || c.resource?.name || c.resource || 'Unknown'),
+            url: c.href,
+            date: c.start,
+            end: c.end,
+            duration: formatDuration(c.duration),
+            status: 'upcoming',
+            difficulty: 'Mixed'
+        }));
+
+        // Only translate the first 20 non-English names to stay within free API limits
+        const toTranslate = rawContests.filter(c => !isEnglish(c.name)).slice(0, 20);
+        if (toTranslate.length > 0) {
+            console.log(`[Translate] Found ${toTranslate.length} non-English contest names. Translating...`);
+            const translations = await Promise.all(toTranslate.map(c => translateToEnglish(c.name)));
+            toTranslate.forEach((c, i) => { c.name = translations[i]; });
+        }
+
+        return rawContests;
     } catch (error) {
         console.error('Error fetching contests:', error);
         return [];
     }
 };
 
+// Detect if text contains non-Latin characters (CJK, Arabic, Cyrillic, Devanagari, etc.)
 const isEnglish = (text) => {
-    // Permissive check to allow special characters and non-ASCII dashes used in contest names
-    return true;
+    if (!text) return true;
+    // Unicode ranges for non-Latin scripts
+    const nonLatinPattern = /[\u0400-\u04FF\u0600-\u06FF\u0900-\u097F\u3000-\u9FFF\uAC00-\uD7AF\uF900-\uFAFF]/;
+    return !nonLatinPattern.test(text);
+};
+
+// Translate a contest name to English using MyMemory free API
+const translateToEnglish = async (text) => {
+    if (!text || isEnglish(text)) return text;
+    try {
+        const encoded = encodeURIComponent(text);
+        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encoded}&langpair=auto|en`);
+        if (!res.ok) return text;
+        const data = await res.json();
+        const translated = data?.responseData?.translatedText;
+        if (translated && translated !== text && data.responseStatus === 200) {
+            console.log(`[Translate] "${text}" → "${translated}"`);
+            return translated;
+        }
+    } catch (e) {
+        console.warn('[Translate] Failed:', e.message);
+    }
+    return text;
 };
 
 
@@ -250,16 +282,34 @@ export const sendReminder = (contest, emailOverride = null) => {
     }).then(res => res.json());
 };
 
-export const scheduleReminder = (contest, minutesBefore = 10, emailOverride = null) => {
+export const scheduleReminder = async (contest, minutesBefore = 10, emailOverride = null) => {
     const token = localStorage.getItem('token');
     const userEmail = JSON.parse(localStorage.getItem('user') || 'null')?.email;
     const email = emailOverride || userEmail;
-    return fetch(`${BACKEND_URL}/api/reminders/schedule`, {
+
+    const headers = {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {})
+    };
+
+    // 1. Schedule the reminder (sends a confirmation email from the server)
+    const scheduleRes = await fetch(`${BACKEND_URL}/api/reminders/schedule`, {
         method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            ...(token ? { Authorization: `Bearer ${token}` } : {})
-        },
+        headers,
         body: JSON.stringify({ email, contest, minutesBefore })
-    }).then(res => res.json());
+    });
+    const scheduleData = await scheduleRes.json();
+
+    // 2. Also fire an immediate confirmation email right now
+    try {
+        await fetch(`${BACKEND_URL}/api/reminders/send`, {
+            method: 'POST',
+            headers,
+            body: JSON.stringify({ email, contest })
+        });
+    } catch (e) {
+        console.warn('[Alert] Immediate confirmation email failed:', e.message);
+    }
+
+    return scheduleData;
 };

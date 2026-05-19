@@ -1,189 +1,549 @@
-
-import React from 'react';
-import { motion } from 'framer-motion';
+import React, { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import {
-    Zap,
-    Bell,
-    LayoutDashboard,
+    Search,
+    Code,
+    Sparkles,
+    Clock,
+    ArrowLeft,
+    ArrowRight,
+    ChevronDown,
+    Award,
     Calendar,
-    Terminal,
-    ChevronRight,
-    Code2,
-    Globe,
-    Shield,
-    Github,
-    Linkedin,
-    ExternalLink,
-    ArrowRight
+    Star,
+    Zap,
+    LayoutDashboard,
+    Bell,
+    Check
 } from 'lucide-react';
+import { useStore } from '../store/useStore';
+
+// Mock avatars for social proof stack
+const DEVELOPER_AVATARS = [
+    { url: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=100&q=80', alt: 'Dev 1' },
+    { url: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=100&q=80', alt: 'Dev 2' },
+    { url: 'https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=100&q=80', alt: 'Dev 3' },
+    { url: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=100&q=80', alt: 'Dev 4' }
+];
+
+// Featured contests for the interactive slider card
+const FEATURED_CONTESTS = [
+    {
+        id: 1,
+        platform: 'LeetCode',
+        title: 'Weekly Challenge 410',
+        desc: '4 algorithmic questions testing problem solving under speed.',
+        badgeColor: 'bg-[#4BB8FA]/10 text-[#4BB8FA] border-[#4BB8FA]/20',
+        image: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=800&q=80',
+        difficulty: 'Easy to Hard',
+        prize: 'Free Access & Badges'
+    },
+    {
+        id: 2,
+        platform: 'Codeforces',
+        title: 'Div. 2 Round 985',
+        desc: 'Competitive format designed to sharpen mathematics & logic.',
+        badgeColor: 'bg-[#4BB8FA]/10 text-[#4BB8FA] border-[#4BB8FA]/20',
+        image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80',
+        difficulty: 'Medium to Hard',
+        prize: 'Rating Points'
+    },
+    {
+        id: 3,
+        platform: 'AtCoder',
+        title: 'Grand Contest 068',
+        desc: 'Advanced problem sets ideal for testing complex algorithms.',
+        badgeColor: 'bg-[#4BB8FA]/10 text-[#4BB8FA] border-[#4BB8FA]/20',
+        image: 'https://images.unsplash.com/photo-1550751827-4bd374c3f58b?auto=format&fit=crop&w=800&q=80',
+        difficulty: 'Very Hard',
+        prize: 'Global Ranking'
+    }
+];
 
 export default function Landing() {
+    const { contests } = useStore();
+
+    // Search widget state (buy/rent/sell equivalents)
+    const [activeTab, setActiveTab] = useState('upcoming'); // 'live', 'upcoming', 'hackathons'
+    const [searchValue, setSearchValue] = useState('');
+    
+    // Bottom filter bar selections
+    const [filterPlatform, setFilterPlatform] = useState('all');
+    const [filterDifficulty, setFilterDifficulty] = useState('all');
+    const [filterDate, setFilterDate] = useState('this-week');
+    const [filterLanguage, setFilterLanguage] = useState('all');
+
+    // Featured contest slider state
+    const [activeSlide, setActiveSlide] = useState(0);
+
+    const handleNextSlide = () => {
+        setActiveSlide((prev) => (prev + 1) % FEATURED_CONTESTS.length);
+    };
+
+    const handlePrevSlide = () => {
+        setActiveSlide((prev) => (prev - 1 + FEATURED_CONTESTS.length) % FEATURED_CONTESTS.length);
+    };
+
+    // Derived counts
+    const totalCount = contests?.length || 42;
+
     return (
-        <div className="min-h-screen bg-black text-white selection:bg-white selection:text-black">
-            {/* Nav */}
-            <nav className="fixed top-0 w-full z-50 border-b border-zinc-900 bg-black/80 backdrop-blur-xl">
-                <div className="max-w-7xl mx-auto px-16 h-20 flex items-center justify-between">
+        <div className="min-h-screen bg-[#09090b] text-[#fafafa] selection:bg-[#4BB8FA]/20 selection:text-[#4BB8FA] font-sans antialiased overflow-x-hidden">
+            
+            {/* Top Navigation Bar */}
+            <nav className="fixed top-0 w-full z-50 border-b border-zinc-800/80 bg-[#09090b]/90 backdrop-blur-md">
+                <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
+                    
+                    {/* Left: Brand Identity */}
                     <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-zinc-800 rounded flex items-center justify-center font-serif text-white text-xs">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] rounded-xl flex items-center justify-center text-black font-bold text-base shadow-sm">
                             CE
                         </div>
-                        <span className="font-serif text-lg tracking-tight font-medium text-white">CodeEvents</span>
+                        <span className="font-semibold text-xl tracking-tight text-white">
+                            Code<span className="text-[#4BB8FA]">Events</span>
+                        </span>
                     </div>
 
-                    <div className="flex items-center gap-8">
-                        <Link to="/login" className="editorial-subtitle !text-[10px] hover:text-white transition-colors">
-                            Sign In
+                    {/* Middle: Clear Navigation Links */}
+                    <div className="hidden md:flex items-center gap-8">
+                        <a href="#contests" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                            All Contests
+                        </a>
+                        <a href="#platforms" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                            Platforms
+                        </a>
+                        <a href="#features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                            Features
+                        </a>
+                        <a href="#about" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
+                            About Us
+                        </a>
+                    </div>
+
+                    {/* Right: Actions */}
+                    <div className="flex items-center gap-6">
+                        <Link to="/login" className="text-sm font-semibold tracking-wide text-zinc-400 hover:text-white transition-all">
+                            LOG IN
                         </Link>
-                        <Link to="/register" className="btn-black !text-[10px] !py-2.5 !px-6 !tracking-[0.2em]">
-                            Initialize
+                        <Link to="/register" className="px-5 py-2.5 bg-white hover:bg-[#4BB8FA] text-black hover:text-black rounded-full text-sm font-semibold transition-all duration-300 shadow-sm hover:shadow-md">
+                            Join Free
                         </Link>
                     </div>
                 </div>
             </nav>
 
-            {/* Hero Section */}
-            <section className="relative pt-40 pb-32 px-12 overflow-hidden">
-                <div className="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-24 items-center relative z-10">
-                    <motion.div
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
-                    >
-                        <h1 className="editorial-title uppercase mb-10">
-                            Master the <br />
-                            <span className="italic opacity-30">Coding Arena.</span>
-                        </h1>
-                        <p className="text-xl text-zinc-500 font-light max-w-lg mb-12 leading-relaxed">
-                            A unified command center for elite programmers. Track global contests, sync performance metrics, and optimize your algorithmic path.
-                        </p>
+            {/* Main Content Layout */}
+            <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pt-28 pb-20">
+                
+                {/* 1. Hero Card Container (Mimics premium asymmetry of the uploaded mockup) */}
+                <section className="relative w-full rounded-[2.5rem] bg-[#121214] border border-zinc-800/80 p-6 sm:p-10 md:p-14 overflow-hidden mb-20 shadow-sm">
+                    {/* Artistic gradient background accents */}
+                    <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#4BB8FA]/10 to-transparent rounded-full blur-3xl -z-10 pointer-events-none" />
 
-                        <div className="flex flex-col sm:flex-row gap-6">
-                            <Link to="/register" className="btn-black text-xs tracking-widest px-10 py-5">
-                                Start Journey <ArrowRight size={16} />
-                            </Link>
-                            <Link to="/login" className="flex items-center gap-2 editorial-subtitle !text-white hover:opacity-60 transition-opacity">
-                                Access Terminal <ChevronRight size={14} />
-                            </Link>
-                        </div>
+                    <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center relative z-10">
+                        
+                        {/* Left Side: Elegant typography & Pill Search Widget */}
+                        <div className="lg:col-span-7 flex flex-col justify-center">
+                            
+                            {/* Curved Header Tag */}
+                            <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/40 border border-zinc-800/80 rounded-full text-xs font-semibold text-[#4BB8FA] mb-6 w-fit shadow-xs">
+                                <Sparkles size={12} />
+                                <span>No.1 Coding Tracker</span>
+                            </div>
 
-                        <div className="mt-24 flex items-center gap-16 border-t border-zinc-900 pt-10">
-                            <Stat number="12+" label="Platforms" />
-                            <Stat number="50K" label="Events" />
-                            <Stat number="0.1s" label="Latency" />
-                        </div>
-                    </motion.div>
+                            {/* Headline matching image style */}
+                            <h1 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-white leading-[1.1] tracking-tight mb-8">
+                                Connecting you <span className="font-light text-zinc-400">to the</span> <br className="hidden sm:inline" />
+                                <span className="text-[#4BB8FA] underline decoration-[#4BB8FA]/20 decoration-wavy decoration-2 underline-offset-8">contests</span> you love
+                            </h1>
 
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.95 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ duration: 1.2, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-                        className="relative"
-                    >
-                        <div className="relative rounded-3xl overflow-hidden shadow-[0_40px_80px_-20px_rgba(0,0,0,0.5)] border border-zinc-900 bg-zinc-950 aspect-[4/5] group">
-                            <img
-                                src="/landing-meme.jpg"
-                                alt="Dashboard Preview"
-                                className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105 opacity-80 group-hover:opacity-100 transition-all"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
-                            <div className="absolute bottom-8 left-8 right-8 bg-zinc-900/90 backdrop-blur-xl p-8 rounded-2xl shadow-2xl translate-y-4 group-hover:translate-y-0 transition-transform duration-700 border border-white/5">
-                                <div className="editorial-subtitle !text-[9px] mb-3 flex items-center gap-2">
-                                    <Bell size={10} className="text-white" /> Incoming Transmission
-                                </div>
-                                <p className="font-serif text-xl italic leading-tight text-white">"Codeforces Global Round 25 initializing in 15 minutes."</p>
+                            {/* Tab Filters (Like Buy, Rent, Sell) */}
+                            <div className="flex gap-2 mb-3">
+                                {[
+                                    { id: 'upcoming', label: 'Upcoming' },
+                                    { id: 'live', label: 'Live' },
+                                    { id: 'hackathons', label: 'Hackathons' }
+                                ].map((tab) => (
+                                    <button
+                                        key={tab.id}
+                                        onClick={() => setActiveTab(tab.id)}
+                                        className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
+                                            activeTab === tab.id
+                                                ? 'bg-zinc-800 text-[#4BB8FA] shadow-xs'
+                                                : 'text-zinc-400 hover:text-white'
+                                        }`}
+                                    >
+                                        {tab.label}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* Search bar inside pill card */}
+                            <div className="relative max-w-xl bg-zinc-900 border border-zinc-850 rounded-full p-2 flex items-center shadow-md mb-8 hover:border-[#4BB8FA]/50 transition-all duration-300">
+                                <Search className="text-zinc-500 ml-4 shrink-0" size={18} />
+                                <input
+                                    type="text"
+                                    value={searchValue}
+                                    onChange={(e) => setSearchValue(e.target.value)}
+                                    placeholder={
+                                        activeTab === 'upcoming'
+                                            ? 'Enter languages, platforms or keywords...'
+                                            : activeTab === 'live'
+                                            ? 'Search live matches now...'
+                                            : 'Search community hackathons...'
+                                    }
+                                    className="w-full bg-transparent border-none outline-none pl-3 pr-4 py-2.5 text-sm text-white placeholder-zinc-500"
+                                />
+                                <Link
+                                    to={`/register?q=${encodeURIComponent(searchValue)}`}
+                                    className="w-12 h-12 bg-[#4BB8FA] hover:bg-[#0F9BF2] rounded-full flex items-center justify-center text-black shrink-0 shadow-sm transition-transform active:scale-95"
+                                >
+                                    <Search size={18} />
+                                </Link>
+                            </div>
+
+                            {/* Quotation block matching "Turning your dreams..." */}
+                            <div className="max-w-lg border-l-2 border-[#4BB8FA]/50 pl-5 py-1">
+                                <p className="text-sm italic text-zinc-400 leading-relaxed">
+                                    "CodeEvents solves the hardest part of competitive programming: staying synchronized. Never miss a rating change or a critical registration deadline again."
+                                </p>
                             </div>
                         </div>
-                    </motion.div>
-                </div>
-            </section>
 
-            {/* Features Grid */}
-            <section id="features" className="py-40 px-12 bg-zinc-950/30">
-                <div className="max-w-7xl mx-auto">
-                    <div className="space-y-4 mb-24">
-                        <div className="editorial-subtitle text-center">Core Architecture</div>
-                        <h2 className="text-5xl font-serif text-center uppercase tracking-tight text-white">Platform <br /> <span className="italic opacity-30">Capabilities.</span></h2>
+                        {/* Right Side: The Premium Asymmetric Curved Card & Visual Mockup */}
+                        <div className="lg:col-span-5 relative flex justify-center items-center">
+                            
+                            {/* Simulated graphic container */}
+                            <div className="w-full aspect-[4/3.8] sm:aspect-[4/3] lg:aspect-[1.1] rounded-[2rem] overflow-hidden bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] border-4 border-zinc-900 shadow-xl relative group">
+                                {/* Simulated coding visual */}
+                                <img
+                                    src={FEATURED_CONTESTS[activeSlide].image}
+                                    alt={FEATURED_CONTESTS[activeSlide].title}
+                                    className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
+                                />
+                                
+                                {/* Gradient screen overlay */}
+                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
+
+                                {/* The Floating Featured Contest Info Box (Mimicking the premium Bismillah House floating info widget) */}
+                                <div className="absolute bottom-0 right-0 left-0 sm:left-auto sm:w-[22rem] bg-[#121214] border-t sm:border-l border-zinc-800/80 rounded-t-[1.5rem] sm:rounded-tl-[1.8rem] sm:rounded-br-[1.5rem] p-6 shadow-2xl transition-all duration-300">
+                                    <div className="flex justify-between items-start gap-2 mb-2">
+                                        <span className="text-[10px] font-bold tracking-widest text-[#4BB8FA] uppercase">
+                                            {FEATURED_CONTESTS[activeSlide].platform}
+                                        </span>
+                                        <span className="text-xs px-2 py-0.5 bg-zinc-800 border border-zinc-700 text-zinc-300 rounded-full font-medium">
+                                            {FEATURED_CONTESTS[activeSlide].difficulty}
+                                        </span>
+                                    </div>
+                                    <h3 className="font-extrabold text-white text-lg mb-1 leading-snug">
+                                        {FEATURED_CONTESTS[activeSlide].title}
+                                    </h3>
+                                    <p className="text-xs text-zinc-400 leading-relaxed mb-4">
+                                        {FEATURED_CONTESTS[activeSlide].desc}
+                                    </p>
+
+                                    {/* Action button & Carousel arrows */}
+                                    <div className="flex items-center justify-between border-t border-zinc-800/85 pt-4">
+                                        <div className="flex flex-col">
+                                            <span className="text-[9px] uppercase tracking-wider text-zinc-500">Entry Fee</span>
+                                            <span className="font-bold text-sm text-[#4BB8FA]">
+                                                {FEATURED_CONTESTS[activeSlide].prize}
+                                            </span>
+                                        </div>
+
+                                        {/* Slider control arrows */}
+                                        <div className="flex items-center gap-1.5">
+                                            <button
+                                                onClick={handlePrevSlide}
+                                                className="w-8 h-8 rounded-full border border-zinc-800 bg-zinc-900 text-white flex items-center justify-center hover:bg-white hover:text-black transition-colors cursor-pointer"
+                                            >
+                                                <ArrowLeft size={13} />
+                                            </button>
+                                            <button
+                                                onClick={handleNextSlide}
+                                                className="w-8 h-8 rounded-full bg-[#4BB8FA] hover:bg-[#0F9BF2] text-black flex items-center justify-center transition-all cursor-pointer shadow-xs active:scale-95"
+                                            >
+                                                <ArrowRight size={13} />
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                {/* 2. Trust, Statistics & Highlight Cards Section (Mimics trusted section from layout) */}
+                <section id="features" className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20 px-2">
+                    
+                    {/* Left Column: Trusted title, stacks of coders & stats */}
+                    <div className="lg:col-span-5 space-y-8">
+                        <div className="space-y-4">
+                            <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
+                                Trusted by <br />
+                                <span className="text-[#4BB8FA] font-black">100,000+</span> developers
+                            </h2>
+                            <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
+                                We gather contest information directly from authorized platforms. Rest assured your schedules are 100% synchronized and correct.
+                            </p>
+                        </div>
+
+                        {/* Developer Avatars Stack */}
+                        <div className="flex items-center gap-3">
+                            <div className="flex -space-x-3">
+                                {DEVELOPER_AVATARS.map((avatar, idx) => (
+                                    <img
+                                        key={idx}
+                                        src={avatar.url}
+                                        alt={avatar.alt}
+                                        className="w-9 h-9 rounded-full border-2 border-[#09090b] object-cover shadow-xs"
+                                    />
+                                ))}
+                            </div>
+                            <span className="text-xs font-semibold text-zinc-300">
+                                Joined by professional developers
+                            </span>
+                        </div>
+
+                        {/* Standard stats display */}
+                        <div className="grid grid-cols-3 gap-6 pt-6 border-t border-zinc-800">
+                            <div>
+                                <div className="text-2xl font-black text-white">15+</div>
+                                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mt-0.5">Platforms</div>
+                            </div>
+                            <div>
+                                <div className="text-2xl font-black text-white">{totalCount}+</div>
+                                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mt-0.5">Weekly Matches</div>
+                            </div>
+                            <div>
+                                <div className="text-2xl font-black text-white">4.8★</div>
+                                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mt-0.5">User Score</div>
+                            </div>
+                        </div>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                        <FeatureCard
-                            icon={LayoutDashboard}
-                            title="Unified Node"
-                            desc="Monitor LeetCode, Codeforces, and AtCoder from a single professional interface."
-                        />
-                        <FeatureCard
-                            icon={Bell}
-                            title="Smart Alerts"
-                            desc="Precision notifications for upcoming battles cross-synced with your profile."
-                        />
-                        <FeatureCard
-                            icon={Globe}
-                            title="Global Sync"
-                            desc="Real-time synchronization of ratings and performance metrics across ecosystem."
-                        />
-                        <FeatureCard
-                            icon={Terminal}
-                            title="Command Line"
-                            desc="Execute and test algorithmic snippets in a distraction-free high-end environment."
-                        />
-                        <FeatureCard
-                            icon={Calendar}
-                            title="Master Path"
-                            desc="Visualize your professional growth trajectory with our advanced logic engine."
-                        />
-                        <FeatureCard
-                            icon={Shield}
-                            title="Secure Identity"
-                            desc="Encrypted personal data management with local-first security protocols."
-                        />
+                    {/* Separator Line for Wide Screens */}
+                    <div className="hidden lg:block lg:col-span-1 justify-self-center self-stretch w-[1px] bg-zinc-800" />
+
+                    {/* Right Column: Three high-end Highlight Cards (with blue icons & right arrows) */}
+                    <div className="lg:col-span-6 space-y-4">
+                        
+                        {/* Card 1 */}
+                        <Link to="/register" className="block bg-[#121214] hover:bg-zinc-900 border border-zinc-800 hover:border-[#4BB8FA]/40 rounded-2xl p-5 shadow-xs transition-all duration-300 group">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 bg-[#4BB8FA]/10 rounded-full flex items-center justify-center text-[#4BB8FA] shrink-0 font-bold">
+                                    <Code size={18} />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-extrabold text-white text-sm group-hover:text-[#4BB8FA] transition-colors">
+                                            Explore top platforms
+                                        </h3>
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-[#4BB8FA] group-hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300">
+                                            <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-zinc-400 leading-relaxed mt-2 pr-6">
+                                        Track events on Codeforces, LeetCode, AtCoder, and CodeChef in one organized schedule. Easy to view, easy to prepare.
+                                    </p>
+                                </div>
+                            </div>
+                        </Link>
+
+                        {/* Card 2 */}
+                        <Link to="/register" className="block bg-[#121214] hover:bg-zinc-900 border border-zinc-800 hover:border-[#4BB8FA]/40 rounded-2xl p-5 shadow-xs transition-all duration-300 group">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 bg-[#4BB8FA]/10 rounded-full flex items-center justify-center text-[#4BB8FA] shrink-0 font-bold">
+                                    <Award size={18} />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-extrabold text-white text-sm group-hover:text-[#4BB8FA] transition-colors">
+                                            Find highly rated contests
+                                        </h3>
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-[#4BB8FA] group-hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300">
+                                            <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-zinc-400 leading-relaxed mt-2 pr-6">
+                                        Discover contests voted best by top coders. Join only the rounds that will give you the best experience and rank increase.
+                                    </p>
+                                </div>
+                            </div>
+                        </Link>
+
+                        {/* Card 3 */}
+                        <Link to="/register" className="block bg-[#121214] hover:bg-zinc-900 border border-zinc-800 hover:border-[#4BB8FA]/40 rounded-2xl p-5 shadow-xs transition-all duration-300 group">
+                            <div className="flex items-start gap-4">
+                                <div className="w-10 h-10 bg-[#4BB8FA]/10 rounded-full flex items-center justify-center text-[#4BB8FA] shrink-0 font-bold">
+                                    <Sparkles size={18} />
+                                </div>
+                                <div className="flex-1">
+                                    <div className="flex items-center justify-between">
+                                        <h3 className="font-extrabold text-white text-sm group-hover:text-[#4BB8FA] transition-colors">
+                                            Discover smart statistics
+                                        </h3>
+                                        <div className="w-8 h-8 rounded-full bg-zinc-800 group-hover:bg-[#4BB8FA] group-hover:text-black text-zinc-400 flex items-center justify-center transition-all duration-300">
+                                            <ArrowRight size={12} className="group-hover:translate-x-0.5 transition-transform" />
+                                        </div>
+                                    </div>
+                                    <p className="text-xs text-zinc-400 leading-relaxed mt-2 pr-6">
+                                        Track your attendance automatically. Write notes for missed questions, and watch your coding speed improve day after day.
+                                    </p>
+                                </div>
+                            </div>
+                        </Link>
                     </div>
-                </div>
-            </section>
+                </section>
 
-
-            {/* Footer */}
-            <footer className="border-t border-zinc-900 py-20 px-12">
-                <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-12">
-                    <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 bg-zinc-800 rounded flex items-center justify-center font-serif text-white text-[10px]">CE</div>
-                        <span className="font-serif text-xl tracking-tighter text-white">CodeEvents</span>
+                {/* 3. Floating Bottom Search Panel (Mimicking the dream home search widget) */}
+                <section id="contests" className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-[2.5rem] p-8 sm:p-10 text-center relative overflow-hidden shadow-xs">
+                    
+                    <div className="max-w-2xl mx-auto mb-8">
+                        <h2 className="text-3xl font-extrabold text-white">Find your perfect contest</h2>
+                        <p className="text-sm text-zinc-400 mt-2">
+                            Select the matching options to search for the perfect round for your timezone and language.
+                        </p>
                     </div>
 
+                    {/* Simulated Filter Bar */}
+                    <div className="bg-[#121214] border border-zinc-800 rounded-3xl p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center shadow-md max-w-5xl mx-auto">
+                        
+                        {/* Selector 1: Platform */}
+                        <div className="text-left px-4 py-2 border-b sm:border-b-0 sm:border-r border-zinc-800 flex flex-col justify-center">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                Platform <ChevronDown size={10} />
+                            </label>
+                            <select
+                                value={filterPlatform}
+                                onChange={(e) => setFilterPlatform(e.target.value)}
+                                className="bg-transparent border-none outline-none text-sm font-extrabold text-white cursor-pointer appearance-none pr-4 w-full"
+                            >
+                                <option value="all" className="bg-[#121214]">All Platforms</option>
+                                <option value="codeforces" className="bg-[#121214]">Codeforces</option>
+                                <option value="leetcode" className="bg-[#121214]">LeetCode</option>
+                                <option value="atcoder" className="bg-[#121214]">AtCoder</option>
+                                <option value="codechef" className="bg-[#121214]">CodeChef</option>
+                            </select>
+                        </div>
 
-                    <div className="editorial-subtitle !text-[9px] !text-zinc-500">
-                        © 2026 CODEEVENTS / OPERATIONAL
+                        {/* Selector 2: Difficulty */}
+                        <div className="text-left px-4 py-2 border-b sm:border-b-0 lg:border-r border-zinc-800 flex flex-col justify-center">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                Difficulty <ChevronDown size={10} />
+                            </label>
+                            <select
+                                value={filterDifficulty}
+                                onChange={(e) => setFilterDifficulty(e.target.value)}
+                                className="bg-transparent border-none outline-none text-sm font-extrabold text-white cursor-pointer appearance-none pr-4 w-full"
+                            >
+                                <option value="all" className="bg-[#121214]">Any Difficulty</option>
+                                <option value="easy" className="bg-[#121214]">Easy (Div 3/4)</option>
+                                <option value="medium" className="bg-[#121214]">Medium (Div 2)</option>
+                                <option value="hard" className="bg-[#121214]">Hard (Div 1)</option>
+                            </select>
+                        </div>
+
+                        {/* Selector 3: Date */}
+                        <div className="text-left px-4 py-2 border-b sm:border-b-0 sm:border-r border-zinc-800 flex flex-col justify-center">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                When <ChevronDown size={10} />
+                            </label>
+                            <select
+                                value={filterDate}
+                                onChange={(e) => setFilterDate(e.target.value)}
+                                className="bg-transparent border-none outline-none text-sm font-extrabold text-white cursor-pointer appearance-none pr-4 w-full"
+                            >
+                                <option value="today" className="bg-[#121214]">Today</option>
+                                <option value="this-week" className="bg-[#121214]">This Week</option>
+                                <option value="this-month" className="bg-[#121214]">This Month</option>
+                            </select>
+                        </div>
+
+                        {/* Selector 4: Language */}
+                        <div className="text-left px-4 py-2 border-b sm:border-b-0 flex flex-col justify-center">
+                            <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+                                Language <ChevronDown size={10} />
+                            </label>
+                            <select
+                                value={filterLanguage}
+                                onChange={(e) => setFilterLanguage(e.target.value)}
+                                className="bg-transparent border-none outline-none text-sm font-extrabold text-white cursor-pointer appearance-none pr-4 w-full"
+                            >
+                                <option value="all" className="bg-[#121214]">All Languages</option>
+                                <option value="cpp" className="bg-[#121214]">C++</option>
+                                <option value="python" className="bg-[#121214]">Python</option>
+                                <option value="javascript" className="bg-[#121214]">JavaScript</option>
+                                <option value="java" className="bg-[#121214]">Java</option>
+                            </select>
+                        </div>
+
+                        {/* Action Search Button */}
+                        <Link
+                            to={`/register?platform=${filterPlatform}&difficulty=${filterDifficulty}&date=${filterDate}&lang=${filterLanguage}`}
+                            className="bg-white hover:bg-[#4BB8FA] text-black rounded-2xl h-14 flex items-center justify-center gap-2 font-semibold text-sm transition-all shadow-sm cursor-pointer"
+                        >
+                            <Search size={16} />
+                            <span>Search</span>
+                        </Link>
+                    </div>
+                </section>
+            </main>
+
+            {/* Footer Area */}
+            <footer id="about" className="border-t border-zinc-800/80 bg-[#121214] text-[#EFEBE0] pt-16 pb-12">
+                <div className="max-w-7xl mx-auto px-6 md:px-12">
+                    <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
+                        
+                        {/* Footer Logo & Intro */}
+                        <div className="md:col-span-6 space-y-4">
+                            <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 bg-[#4BB8FA] rounded-xl flex items-center justify-center text-black font-bold text-base">
+                                    CE
+                                </div>
+                                <span className="font-semibold text-xl tracking-tight text-white">
+                                    Code<span className="text-[#4BB8FA]">Events</span>
+                                </span>
+                            </div>
+                            <p className="text-sm text-zinc-500 max-w-sm">
+                                Synchronizing coder schedules globally with real-time contest APIs, automatic calendar integration, and AI performance insights.
+                            </p>
+                        </div>
+
+                        {/* Footer Navigation Columns */}
+                        <div className="md:col-span-6 flex justify-start md:justify-end gap-16">
+                            
+                            <div className="space-y-4">
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-[#4BB8FA]">Features</h4>
+                                <div className="flex flex-col gap-2.5">
+                                    <Link to="/login" className="text-xs text-zinc-500 hover:text-white transition-colors">Track Contest</Link>
+                                    <Link to="/register" className="text-xs text-zinc-500 hover:text-white transition-colors">Calendar View</Link>
+                                    <Link to="/register" className="text-xs text-zinc-500 hover:text-white transition-colors">AI Analysis</Link>
+                                </div>
+                            </div>
+
+                            <div className="space-y-4">
+                                <h4 className="text-xs font-bold uppercase tracking-widest text-[#4BB8FA]">Company</h4>
+                                <div className="flex flex-col gap-2.5">
+                                    <a href="mailto:hello@codeevents.com" className="text-xs text-zinc-500 hover:text-white transition-colors">hello@codeevents.com</a>
+                                    <a href="https://github.com" className="text-xs text-zinc-500 hover:text-white transition-colors" target="_blank" rel="noopener noreferrer">Github</a>
+                                    <span className="text-xs text-zinc-500/40">V2.1.0 Edition</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Bottom Trademark Row */}
+                    <div className="mt-16 pt-8 border-t border-zinc-800 flex flex-col sm:flex-row justify-between items-center gap-4 text-[11px] text-zinc-500 uppercase tracking-widest">
+                        <div>© 2026 CodeEvents. All Rights Reserved.</div>
+                        <div className="flex gap-6">
+                            <a href="#features" className="hover:text-white transition-colors">Privacy Policy</a>
+                            <a href="#features" className="hover:text-white transition-colors">Terms of Service</a>
+                        </div>
                     </div>
                 </div>
             </footer>
         </div>
     );
 }
-
-const Stat = ({ number, label }) => (
-    <div className="space-y-1">
-        <div className="text-3xl font-serif italic">{number}</div>
-        <div className="editorial-subtitle !text-[9px]">{label}</div>
-    </div>
-);
-
-const FeatureCard = ({ icon: Icon, title, desc }) => (
-    <div className="card-minimal p-10 group hover:bg-zinc-900">
-        <div className="w-12 h-12 bg-zinc-900 rounded-xl flex items-center justify-center mb-10 group-hover:bg-white group-hover:text-black transition-all duration-500">
-            <Icon size={20} strokeWidth={1.5} />
-        </div>
-        <h3 className="text-2xl font-serif mb-4 group-hover:translate-x-1 transition-transform duration-500 text-white">{title}</h3>
-        <p className="text-zinc-500 font-light leading-relaxed text-sm group-hover:text-zinc-300 transition-colors duration-500">{desc}</p>
-    </div>
-);
-
-const SocialLink = ({ href, icon: Icon, label }) => (
-    <a href={href} target="_blank" rel="noreferrer" className="flex items-center gap-3 px-6 py-3 bg-white/5 rounded-full hover:bg-white/10 transition-colors border border-white/5">
-        <Icon size={16} />
-        <span className="editorial-subtitle !text-[9px] !text-white">{label}</span>
-    </a>
-);
-
-const FooterLink = ({ label }) => (
-    <a href="#" className="editorial-subtitle !text-[9px] hover:text-black transition-colors">{label}</a>
-);
