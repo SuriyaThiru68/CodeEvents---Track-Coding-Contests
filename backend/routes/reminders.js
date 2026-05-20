@@ -1,7 +1,17 @@
 const express = require('express');
 const router = express.Router();
 const Reminder = require('../models/Reminder');
+const User = require('../models/User');
 const { sendEmail } = require('../utils/mailer');
+
+// Simulate sending a WhatsApp message
+const sendWhatsApp = async (phoneNumber, text) => {
+    if (!phoneNumber) return;
+    console.log(`\n================= WHATSAPP MESSAGE =================`);
+    console.log(`TO: ${phoneNumber}`);
+    console.log(`TEXT: ${text}`);
+    console.log(`====================================================\n`);
+};
 
 // ── Shared HTML email template ─────────────────────────────────────────────
 const buildEmailHtml = ({ title, subtitle, body, cta, ctaUrl, footer }) => `
@@ -78,7 +88,18 @@ const sendReminderEmail = async (email, contest) => {
         footer: 'You are receiving this because you set a reminder on CodeEvents.'
     });
 
-    await sendEmail({ to: email, subject, text, html });
+    const user = await User.findOne({ email });
+    const pref = user ? user.alertPreference : 'email';
+    const phone = user ? user.phoneNumber : '';
+
+    if (pref === 'email' || pref === 'both' || !phone) {
+        await sendEmail({ to: email, subject, text, html });
+    }
+    
+    if ((pref === 'whatsapp' || pref === 'both') && phone) {
+        await sendWhatsApp(phone, `*⏰ Contest Reminder: ${contest.name}*\n\nYour contest is starting soon!\n\n*Platform:* ${contest.platform}\n*Date:* ${dateStr}\n*Time:* ${timeStr}\n\nLink: ${contest.url}`);
+    }
+
     return { msg: 'Reminder processed' };
 };
 
@@ -123,10 +144,14 @@ router.post('/schedule', async (req, res) => {
         // Save to DB
         const reminder = await Reminder.create({ email, contest, sendAt });
 
-        // ── Instant confirmation email ──────────────────────────────────────
+        // ── Instant confirmation email / WhatsApp ──────────────────────────────────────
         try {
+            const user = await User.findOne({ email });
+            const pref = user ? user.alertPreference : 'email';
+            const phone = user ? user.phoneNumber : '';
+
             const confirmSubject = `✅ Alert Confirmed: ${contest.name}`;
-            const confirmText = `Your alert for "${contest.name}" has been set.\nWe will email you at ${reminderTimeStr} on ${dateStr}.\n\nContest link: ${contest.url}\n\n– CodeEvents`;
+            const confirmText = `Your alert for "${contest.name}" has been set.\nWe will alert you at ${reminderTimeStr} on ${dateStr}.\n\nContest link: ${contest.url}\n\n– CodeEvents`;
             const confirmHtml = buildEmailHtml({
                 title: 'Alert Set Successfully',
                 subtitle: 'Alert Confirmation',
@@ -142,9 +167,15 @@ router.post('/schedule', async (req, res) => {
                 footer: 'You set this alert on CodeEvents. No action needed — we will remind you.'
             });
 
-            await sendEmail({ to: email, subject: confirmSubject, text: confirmText, html: confirmHtml });
+            if (pref === 'email' || pref === 'both' || !phone) {
+                await sendEmail({ to: email, subject: confirmSubject, text: confirmText, html: confirmHtml });
+            }
+
+            if ((pref === 'whatsapp' || pref === 'both') && phone) {
+                await sendWhatsApp(phone, `*✅ Alert Confirmed: ${contest.name}*\n\nYour alert has been set.\nWe will remind you at ${reminderTimeStr} on ${dateStr}.\n\nContest link: ${contest.url}`);
+            }
         } catch (mailErr) {
-            console.error('[Reminders] Failed to send confirmation email:', mailErr.message);
+            console.error('[Reminders] Failed to send confirmation alert:', mailErr.message);
         }
 
         return res.json({
@@ -162,17 +193,28 @@ router.post('/schedule', async (req, res) => {
 router.get('/test-email/:email', async (req, res) => {
     try {
         const { email } = req.params;
+        const user = await User.findOne({ email });
+        const pref = user ? user.alertPreference : 'email';
+        const phone = user ? user.phoneNumber : '';
+
         const subject = '✔ System Verification: Link Established';
-        const text = `Success! Your email (${email}) has been linked to CodeEvents. You will receive contest reminders here.\n\n– CodeEvents`;
+        const text = `Success! Your account has been linked to CodeEvents. You will receive contest reminders here.\n\n– CodeEvents`;
         const html = buildEmailHtml({
             title: 'Connection Verified',
             subtitle: 'System Check',
-            body: `Your email <strong style="color:#000;">${email}</strong> has been successfully linked to the <strong>CodeEvents</strong> ecosystem.<br/><br/>You will receive contest reminders and notifications at this address.`,
-            footer: 'This was a test email sent from CodeEvents.'
+            body: `Your account <strong style="color:#000;">${email}</strong> has been successfully linked to the <strong>CodeEvents</strong> ecosystem.<br/><br/>You will receive contest reminders based on your preferences.`,
+            footer: 'This was a test alert sent from CodeEvents.'
         });
 
-        await sendEmail({ to: email, subject, text, html });
-        return res.json({ msg: 'Test email dispatched to ' + email });
+        if (pref === 'email' || pref === 'both' || !phone) {
+            await sendEmail({ to: email, subject, text, html });
+        }
+
+        if ((pref === 'whatsapp' || pref === 'both') && phone) {
+            await sendWhatsApp(phone, `*✔ System Verification: Link Established*\n\nSuccess! Your account (${email}) has been linked to CodeEvents.\n\nYou will receive contest reminders here via WhatsApp.\n\n– CodeEvents`);
+        }
+
+        return res.json({ msg: 'Test alert dispatched' });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: err.message });

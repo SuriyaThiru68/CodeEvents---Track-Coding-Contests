@@ -49,7 +49,7 @@ export const fetchContests = async () => {
             console.log('First contest structure sample:', JSON.stringify(data.objects[0], null, 2));
         }
 
-        // Translate non-English contest names in parallel (max 20 to avoid rate limits)
+        // Translate non-English contest names in parallel
         const rawContests = data.objects.map((c, index) => ({
             id: c.id || index,
             name: c.event,
@@ -62,8 +62,7 @@ export const fetchContests = async () => {
             difficulty: 'Mixed'
         }));
 
-        // Only translate the first 20 non-English names to stay within free API limits
-        const toTranslate = rawContests.filter(c => !isEnglish(c.name)).slice(0, 20);
+        const toTranslate = rawContests.filter(c => !isEnglish(c.name));
         if (toTranslate.length > 0) {
             console.log(`[Translate] Found ${toTranslate.length} non-English contest names. Translating...`);
             const translations = await Promise.all(toTranslate.map(c => translateToEnglish(c.name)));
@@ -85,16 +84,16 @@ const isEnglish = (text) => {
     return !nonLatinPattern.test(text);
 };
 
-// Translate a contest name to English using MyMemory free API
+// Translate a contest name to English using Google Translate API
 const translateToEnglish = async (text) => {
     if (!text || isEnglish(text)) return text;
     try {
         const encoded = encodeURIComponent(text);
-        const res = await fetch(`https://api.mymemory.translated.net/get?q=${encoded}&langpair=auto|en`);
+        const res = await fetch(`https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=${encoded}`);
         if (!res.ok) return text;
         const data = await res.json();
-        const translated = data?.responseData?.translatedText;
-        if (translated && translated !== text && data.responseStatus === 200) {
+        const translated = data[0].map(item => item[0]).join("");
+        if (translated) {
             console.log(`[Translate] "${text}" → "${translated}"`);
             return translated;
         }
@@ -312,4 +311,28 @@ export const scheduleReminder = async (contest, minutesBefore = 10, emailOverrid
     }
 
     return scheduleData;
+};
+
+export const updateProfilesToDb = async (profiles) => {
+    const token = localStorage.getItem('token');
+    return fetch(`${BACKEND_URL}/api/auth/profiles`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify({ profiles })
+    }).then(res => res.json());
+};
+
+export const updatePreferencesToDb = async (preferences) => {
+    const token = localStorage.getItem('token');
+    return fetch(`${BACKEND_URL}/api/auth/preferences`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {})
+        },
+        body: JSON.stringify(preferences)
+    }).then(res => res.json());
 };

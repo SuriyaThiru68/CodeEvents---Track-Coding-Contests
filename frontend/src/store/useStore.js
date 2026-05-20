@@ -1,7 +1,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { fetchContests, fetchCFUser, fetchLCUser, fetchCodeChefUser, fetchAtCoderUser } from '../services/api';
+import { fetchContests, fetchCFUser, fetchLCUser, fetchCodeChefUser, fetchAtCoderUser, updateProfilesToDb } from '../services/api';
 import { getTracker, EVENT_TYPES } from '../services/behaviorTracker';
 
 export const useStore = create(
@@ -45,10 +45,35 @@ export const useStore = create(
                 atcoder: { username: '', rating: 0, rank: 'Unrated', contests: 0, solved: 0 },
                 codechef: { username: '', rating: 0, rank: 'Unrated', contests: 0, solved: 0 },
             },
+            setProfilesFromDb: (dbProfiles) => set((state) => {
+                if (!dbProfiles) return state;
+                const newProfiles = { ...state.userProfiles };
+                Object.keys(dbProfiles).forEach(platform => {
+                    if (newProfiles[platform] && dbProfiles[platform]) {
+                        newProfiles[platform].username = dbProfiles[platform];
+                    }
+                });
+                return { userProfiles: newProfiles };
+            }),
 
             syncPlatform: async (platform) => {
                 const username = get().userProfiles[platform].username;
                 if (!username) return;
+
+                // Sync the username to the database
+                if (get().user) {
+                    const profilesObj = {
+                        codeforces: get().userProfiles.codeforces.username,
+                        leetcode: get().userProfiles.leetcode.username,
+                        atcoder: get().userProfiles.atcoder.username,
+                        codechef: get().userProfiles.codechef.username
+                    };
+                    try {
+                        await updateProfilesToDb(profilesObj);
+                    } catch (e) {
+                        console.error('Failed to sync profile to DB', e);
+                    }
+                }
 
                 let data = null;
                 if (platform === 'codeforces') {
@@ -111,9 +136,11 @@ export const useStore = create(
             },
             profileImage: null,
             setProfileImage: (img) => set({ profileImage: img }),
-            updateProfile: (platform, data) => set((state) => ({
-                userProfiles: { ...state.userProfiles, [platform]: { ...state.userProfiles[platform], ...data } }
-            })),
+            updateProfile: (platform, data) => {
+                set((state) => ({
+                    userProfiles: { ...state.userProfiles, [platform]: { ...state.userProfiles[platform], ...data } }
+                }));
+            },
 
             // Email digest preference
             emailDigest: true,

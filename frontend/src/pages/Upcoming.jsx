@@ -8,22 +8,33 @@ import {
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { toast } from 'sonner';
-import { scheduleReminder } from '../services/api';
+import { scheduleReminder, updatePreferencesToDb } from '../services/api';
 
 export default function Upcoming() {
     const { contests, refreshContests, isLoading, user } = useStore();
     const [searchTerm, setSearchTerm] = useState('');
     const [platformFilter, setPlatformFilter] = useState('All');
     const [selectedContest, setSelectedContest] = useState(null);
-    const [alertData, setAlertData] = useState({ email: '', time: '15', notes: '' });
+    const [alertData, setAlertData] = useState({ 
+        email: '', 
+        time: '15', 
+        notes: '',
+        alertMethod: 'email',
+        phoneNumber: '' 
+    });
 
     useEffect(() => {
         refreshContests();
     }, []);
 
     useEffect(() => {
-        if (user?.email) {
-            setAlertData(prev => ({ ...prev, email: user.email }));
+        if (user) {
+            setAlertData(prev => ({ 
+                ...prev, 
+                email: user.email || '',
+                alertMethod: user.alertPreference || 'email',
+                phoneNumber: user.phoneNumber || ''
+            }));
         }
     }, [user]);
 
@@ -39,7 +50,9 @@ export default function Upcoming() {
         setAlertData({
             email: user?.email || '',
             time: '15',
-            notes: `Reminder for ${contest.name}`
+            notes: `Reminder for ${contest.name}`,
+            alertMethod: user?.alertPreference || 'email',
+            phoneNumber: user?.phoneNumber || ''
         });
     };
 
@@ -49,8 +62,16 @@ export default function Upcoming() {
             return;
         }
 
-        const toastId = toast.loading('Setting alert & sending confirmation...');
+        const toastId = toast.loading('Setting alert & updating preferences...');
         try {
+            // Update preferences in backend first so the reminder worker picks it up
+            if (user) {
+                await updatePreferencesToDb({
+                    phoneNumber: alertData.phoneNumber,
+                    alertPreference: alertData.alertMethod
+                });
+            }
+
             const result = await scheduleReminder(selectedContest, parseInt(alertData.time), alertData.email);
             toast.success(
                 `Alert set! Confirmation sent to ${alertData.email}. You'll be reminded ${alertData.time} min before the contest.`,
@@ -183,56 +204,84 @@ export default function Upcoming() {
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="bg-[#121214] w-full max-w-xl rounded-[3rem] p-16 shadow-2xl relative z-10 border border-zinc-800"
+                            className="bg-[#121214] w-full max-w-lg rounded-[2rem] p-10 shadow-2xl relative z-10 border border-zinc-800 max-h-[90vh] overflow-y-auto"
                         >
                             <button
                                 onClick={() => setSelectedContest(null)}
-                                className="absolute top-10 right-10 text-zinc-500 hover:text-white transition-colors cursor-pointer"
+                                className="absolute top-6 right-6 text-zinc-500 hover:text-white transition-colors cursor-pointer"
                             >
-                                <X size={28} strokeWidth={1.5} />
+                                <X size={24} strokeWidth={1.5} />
                             </button>
 
-                            <div className="space-y-12">
-                                <div className="space-y-4">
-                                    <div className="text-[12px] font-bold tracking-[0.4em] uppercase text-[#4BB8FA]">Notifications</div>
-                                    <h2 className="text-4xl font-light leading-none text-white">Get Alerted.</h2>
+                            <div className="space-y-8">
+                                <div className="space-y-2">
+                                    <div className="text-[10px] font-bold tracking-[0.4em] uppercase text-[#4BB8FA]">Notifications</div>
+                                    <h2 className="text-3xl font-light leading-none text-white">Get Alerted.</h2>
                                     <p className="text-[11px] text-zinc-400 uppercase tracking-widest leading-relaxed border-l-2 border-[#4BB8FA] pl-4">{selectedContest.name}</p>
                                 </div>
 
-                                <div className="space-y-8">
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Email</label>
+                                <div className="space-y-5">
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-500">Email</label>
                                         <input
                                             value={alertData.email}
                                             onChange={(e) => setAlertData({ ...alertData, email: e.target.value })}
-                                            className="w-full px-8 py-5 bg-zinc-950 border border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white"
+                                            className="w-full px-6 py-4 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white"
                                             placeholder="you@email.com"
                                         />
                                     </div>
+                                    
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-500">Notification Method</label>
+                                        <div className="relative">
+                                            <select
+                                                value={alertData.alertMethod}
+                                                onChange={(e) => setAlertData({ ...alertData, alertMethod: e.target.value })}
+                                                className="w-full px-6 py-4 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] appearance-none cursor-pointer outline-none hover:border-[#4BB8FA]/40 transition-all text-white"
+                                            >
+                                                <option value="email" className="bg-[#121214]">Email Only</option>
+                                                <option value="whatsapp" className="bg-[#121214]">WhatsApp Only</option>
+                                                <option value="both" className="bg-[#121214]">Both Email & WhatsApp</option>
+                                            </select>
+                                            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
+                                        </div>
+                                    </div>
 
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Alert Time</label>
+                                    {(alertData.alertMethod === 'whatsapp' || alertData.alertMethod === 'both') && (
+                                        <div className="space-y-2">
+                                            <label className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-500">Phone Number (WhatsApp)</label>
+                                            <input
+                                                value={alertData.phoneNumber}
+                                                onChange={(e) => setAlertData({ ...alertData, phoneNumber: e.target.value })}
+                                                className="w-full px-6 py-4 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white"
+                                                placeholder="+1234567890"
+                                            />
+                                        </div>
+                                    )}
+
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-500">Alert Time</label>
                                         <div className="relative">
                                             <select
                                                 value={alertData.time}
                                                 onChange={(e) => setAlertData({ ...alertData, time: e.target.value })}
-                                                className="w-full px-8 py-5 bg-zinc-950 border border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] appearance-none cursor-pointer outline-none hover:border-[#4BB8FA]/40 transition-all text-white"
+                                                className="w-full px-6 py-4 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-[0.2em] appearance-none cursor-pointer outline-none hover:border-[#4BB8FA]/40 transition-all text-white"
                                             >
                                                 <option value="5" className="bg-[#121214]">5 Mins Before</option>
                                                 <option value="15" className="bg-[#121214]">15 Mins Before</option>
                                                 <option value="30" className="bg-[#121214]">30 Mins Before</option>
                                                 <option value="60" className="bg-[#121214]">1 Hour Before</option>
                                             </select>
-                                            <ChevronDown className="absolute right-6 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
+                                            <ChevronDown className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-500 pointer-events-none" size={16} />
                                         </div>
                                     </div>
 
-                                    <div className="space-y-3">
-                                        <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-zinc-500">Notes</label>
+                                    <div className="space-y-2">
+                                        <label className="text-[9px] font-bold tracking-[0.2em] uppercase text-zinc-500">Notes</label>
                                         <textarea
                                             value={alertData.notes}
                                             onChange={(e) => setAlertData({ ...alertData, notes: e.target.value })}
-                                            className="w-full px-8 py-6 bg-zinc-950 border border-zinc-800 rounded-2xl text-[10px] font-bold uppercase tracking-[0.1em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white h-32 resize-none"
+                                            className="w-full px-6 py-4 bg-zinc-950 border border-zinc-800 rounded-xl text-[10px] font-bold uppercase tracking-[0.1em] focus:border-[#4BB8FA]/50 outline-none transition-all placeholder:text-zinc-650 text-white h-20 resize-none"
                                             placeholder="Extra notes..."
                                         />
                                     </div>
@@ -240,7 +289,7 @@ export default function Upcoming() {
 
                                 <button
                                     onClick={submitAlert}
-                                    className="px-8 py-6 bg-white hover:bg-zinc-200 text-black font-semibold rounded-[100px] text-[10px] font-bold uppercase tracking-[0.3em] transition-all w-full shadow-lg cursor-pointer"
+                                    className="px-6 py-4 mt-2 bg-white hover:bg-zinc-200 text-black font-semibold rounded-[100px] text-[10px] font-bold uppercase tracking-[0.3em] transition-all w-full shadow-lg cursor-pointer"
                                 >
                                     Save Alert
                                 </button>

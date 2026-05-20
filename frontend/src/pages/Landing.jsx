@@ -67,7 +67,7 @@ export default function Landing() {
     // Search widget state (buy/rent/sell equivalents)
     const [activeTab, setActiveTab] = useState('upcoming'); // 'live', 'upcoming', 'hackathons'
     const [searchValue, setSearchValue] = useState('');
-    
+
     // Bottom filter bar selections
     const [filterPlatform, setFilterPlatform] = useState('all');
     const [filterDifficulty, setFilterDifficulty] = useState('all');
@@ -90,11 +90,11 @@ export default function Landing() {
 
     return (
         <div className="min-h-screen bg-[#09090b] text-[#fafafa] selection:bg-[#4BB8FA]/20 selection:text-[#4BB8FA] font-sans antialiased overflow-x-hidden">
-            
+
             {/* Top Navigation Bar */}
             <nav className="fixed top-0 w-full z-50 border-b border-zinc-800/80 bg-[#09090b]/90 backdrop-blur-md">
                 <div className="max-w-7xl mx-auto px-6 md:px-12 h-20 flex items-center justify-between">
-                    
+
                     {/* Left: Brand Identity */}
                     <div className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] rounded-xl flex items-center justify-center text-black font-bold text-base shadow-sm">
@@ -105,21 +105,7 @@ export default function Landing() {
                         </span>
                     </div>
 
-                    {/* Middle: Clear Navigation Links */}
-                    <div className="hidden md:flex items-center gap-8">
-                        <a href="#contests" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-                            All Contests
-                        </a>
-                        <a href="#platforms" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-                            Platforms
-                        </a>
-                        <a href="#features" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-                            Features
-                        </a>
-                        <a href="#about" className="text-sm font-medium text-zinc-400 hover:text-white transition-colors">
-                            About Us
-                        </a>
-                    </div>
+                  
 
                     {/* Right: Actions */}
                     <div className="flex items-center gap-6">
@@ -135,17 +121,17 @@ export default function Landing() {
 
             {/* Main Content Layout */}
             <main className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 pt-28 pb-20">
-                
+
                 {/* 1. Hero Card Container (Mimics premium asymmetry of the uploaded mockup) */}
                 <section className="relative w-full rounded-[2.5rem] bg-[#121214] border border-zinc-800/80 p-6 sm:p-10 md:p-14 overflow-hidden mb-20 shadow-sm">
                     {/* Artistic gradient background accents */}
                     <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-gradient-to-bl from-[#4BB8FA]/10 to-transparent rounded-full blur-3xl -z-10 pointer-events-none" />
 
                     <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center relative z-10">
-                        
+
                         {/* Left Side: Elegant typography & Pill Search Widget */}
                         <div className="lg:col-span-7 flex flex-col justify-center">
-                            
+
                             {/* Curved Header Tag */}
                             <div className="inline-flex items-center gap-2 px-3 py-1 bg-zinc-800/40 border border-zinc-800/80 rounded-full text-xs font-semibold text-[#4BB8FA] mb-6 w-fit shadow-xs">
                                 <Sparkles size={12} />
@@ -168,11 +154,10 @@ export default function Landing() {
                                     <button
                                         key={tab.id}
                                         onClick={() => setActiveTab(tab.id)}
-                                        className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${
-                                            activeTab === tab.id
+                                        className={`px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer ${activeTab === tab.id
                                                 ? 'bg-zinc-800 text-[#4BB8FA] shadow-xs'
                                                 : 'text-zinc-400 hover:text-white'
-                                        }`}
+                                            }`}
                                     >
                                         {tab.label}
                                     </button>
@@ -190,8 +175,8 @@ export default function Landing() {
                                         activeTab === 'upcoming'
                                             ? 'Enter languages, platforms or keywords...'
                                             : activeTab === 'live'
-                                            ? 'Search live matches now...'
-                                            : 'Search community hackathons...'
+                                                ? 'Search live matches now...'
+                                                : 'Search community hackathons...'
                                     }
                                     className="w-full bg-transparent border-none outline-none pl-3 pr-4 py-2.5 text-sm text-white placeholder-zinc-500"
                                 />
@@ -213,7 +198,7 @@ export default function Landing() {
 
                         {/* Right Side: The Premium Asymmetric Curved Card & Visual Mockup */}
                         <div className="lg:col-span-5 relative flex justify-center items-center">
-                            
+
                             {/* Simulated graphic container */}
                             <div className="w-full aspect-[4/3.8] sm:aspect-[4/3] lg:aspect-[1.1] rounded-[2rem] overflow-hidden bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] border-4 border-zinc-900 shadow-xl relative group">
                                 {/* Simulated coding visual */}
@@ -222,7 +207,7 @@ export default function Landing() {
                                     alt={FEATURED_CONTESTS[activeSlide].title}
                                     className="w-full h-full object-cover opacity-80 group-hover:scale-105 transition-transform duration-700"
                                 />
-                                
+
                                 {/* Gradient screen overlay */}
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/30" />
 
@@ -276,51 +261,22 @@ export default function Landing() {
 
                 {/* 2. Trust, Statistics & Highlight Cards Section (Mimics trusted section from layout) */}
                 <section id="features" className="w-full grid grid-cols-1 lg:grid-cols-12 gap-12 items-start mb-20 px-2">
-                    
+
                     {/* Left Column: Trusted title, stacks of coders & stats */}
-                    <div className="lg:col-span-5 space-y-8">
+                    <div className="lg:col-span-5 space-y-8 mt-20">
                         <div className="space-y-4">
                             <h2 className="text-3xl sm:text-4xl font-extrabold text-white tracking-tight leading-tight">
-                                Trusted by <br />
-                                <span className="text-[#4BB8FA] font-black">100,000+</span> developers
+                                Track Coding Contests <br />
+                                <span className="text-[#4BB8FA] font-black">Easily</span> Online
                             </h2>
                             <p className="text-sm text-zinc-400 leading-relaxed max-w-sm">
-                                We gather contest information directly from authorized platforms. Rest assured your schedules are 100% synchronized and correct.
+                                Stay updated with upcoming programming contests
+                                from multiple competitive coding platforms.
+                                Never miss your next coding challenge.
                             </p>
                         </div>
 
-                        {/* Developer Avatars Stack */}
-                        <div className="flex items-center gap-3">
-                            <div className="flex -space-x-3">
-                                {DEVELOPER_AVATARS.map((avatar, idx) => (
-                                    <img
-                                        key={idx}
-                                        src={avatar.url}
-                                        alt={avatar.alt}
-                                        className="w-9 h-9 rounded-full border-2 border-[#09090b] object-cover shadow-xs"
-                                    />
-                                ))}
-                            </div>
-                            <span className="text-xs font-semibold text-zinc-300">
-                                Joined by professional developers
-                            </span>
-                        </div>
-
-                        {/* Standard stats display */}
-                        <div className="grid grid-cols-3 gap-6 pt-6 border-t border-zinc-800">
-                            <div>
-                                <div className="text-2xl font-black text-white">15+</div>
-                                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mt-0.5">Platforms</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-black text-white">{totalCount}+</div>
-                                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mt-0.5">Weekly Matches</div>
-                            </div>
-                            <div>
-                                <div className="text-2xl font-black text-white">4.8★</div>
-                                <div className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mt-0.5">User Score</div>
-                            </div>
-                        </div>
+                    
                     </div>
 
                     {/* Separator Line for Wide Screens */}
@@ -328,7 +284,7 @@ export default function Landing() {
 
                     {/* Right Column: Three high-end Highlight Cards (with blue icons & right arrows) */}
                     <div className="lg:col-span-6 space-y-4">
-                        
+
                         {/* Card 1 */}
                         <Link to="/register" className="block bg-[#121214] hover:bg-zinc-900 border border-zinc-800 hover:border-[#4BB8FA]/40 rounded-2xl p-5 shadow-xs transition-all duration-300 group">
                             <div className="flex items-start gap-4">
@@ -399,7 +355,7 @@ export default function Landing() {
 
                 {/* 3. Floating Bottom Search Panel (Mimicking the dream home search widget) */}
                 <section id="contests" className="w-full bg-zinc-900/60 border border-zinc-800/80 rounded-[2.5rem] p-8 sm:p-10 text-center relative overflow-hidden shadow-xs">
-                    
+
                     <div className="max-w-2xl mx-auto mb-8">
                         <h2 className="text-3xl font-extrabold text-white">Find your perfect contest</h2>
                         <p className="text-sm text-zinc-400 mt-2">
@@ -409,7 +365,7 @@ export default function Landing() {
 
                     {/* Simulated Filter Bar */}
                     <div className="bg-[#121214] border border-zinc-800 rounded-3xl p-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 items-center shadow-md max-w-5xl mx-auto">
-                        
+
                         {/* Selector 1: Platform */}
                         <div className="text-left px-4 py-2 border-b sm:border-b-0 sm:border-r border-zinc-800 flex flex-col justify-center">
                             <label className="text-[10px] font-bold text-zinc-500 uppercase tracking-wider mb-1 flex items-center gap-1.5">
@@ -495,7 +451,7 @@ export default function Landing() {
             <footer id="about" className="border-t border-zinc-800/80 bg-[#121214] text-[#EFEBE0] pt-16 pb-12">
                 <div className="max-w-7xl mx-auto px-6 md:px-12">
                     <div className="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-16 items-center">
-                        
+
                         {/* Footer Logo & Intro */}
                         <div className="md:col-span-6 space-y-4">
                             <div className="flex items-center gap-3">
@@ -513,7 +469,7 @@ export default function Landing() {
 
                         {/* Footer Navigation Columns */}
                         <div className="md:col-span-6 flex justify-start md:justify-end gap-16">
-                            
+
                             <div className="space-y-4">
                                 <h4 className="text-xs font-bold uppercase tracking-widest text-[#4BB8FA]">Features</h4>
                                 <div className="flex flex-col gap-2.5">

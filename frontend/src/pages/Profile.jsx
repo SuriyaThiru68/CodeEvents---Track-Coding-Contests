@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../store/useStore';
 import { toast } from 'sonner';
+import { updatePreferencesToDb } from '../services/api';
 
 export default function Profile() {
     const { user, setUser, stats, profileImage, setProfileImage, userProfiles, getTotalSolved, emailDigest, toggleEmailDigest } = useStore();
@@ -23,6 +24,8 @@ export default function Profile() {
     const [formData, setFormData] = useState({
         name: '',
         email: '',
+        phoneNumber: '',
+        alertPreference: 'email',
         bio: 'Competitive programmer focused on high-performance algorithms and system design.',
     });
 
@@ -31,16 +34,29 @@ export default function Profile() {
             setFormData(prev => ({
                 ...prev,
                 name: user.name || 'User',
-                email: user.email || 'user@example.com'
+                email: user.email || 'user@example.com',
+                phoneNumber: user.phoneNumber || '',
+                alertPreference: user.alertPreference || 'email'
             }));
         }
     }, [user]);
 
     const totalSolved = getTotalSolved?.() || 0;
 
-    const handleSave = () => {
-        setUser({ ...user, ...formData });
-        toast.success('System parameters updated');
+    const handleSave = async () => {
+        try {
+            const res = await updatePreferencesToDb({
+                name: formData.name,
+                phoneNumber: formData.phoneNumber,
+                alertPreference: formData.alertPreference
+            });
+            if (res.user) {
+                setUser({ ...user, ...res.user });
+                toast.success('System parameters updated');
+            }
+        } catch (e) {
+            toast.error('Failed to update parameters');
+        }
     };
 
     const handleImageUpload = (e) => {
@@ -186,7 +202,23 @@ export default function Profile() {
                                             </div>
                                             <div className="space-y-3">
                                                 <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50">Email</label>
-                                                <input value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="w-full px-6 py-4 bg-[#09090b] border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-white/20 outline-none transition-all placeholder:text-white/20 text-white" />
+                                                <input value={formData.email} disabled className="w-full px-6 py-4 bg-[#09090b] border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] outline-none transition-all text-white/50 cursor-not-allowed" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50">Phone Number (WhatsApp)</label>
+                                                <input value={formData.phoneNumber} onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })} placeholder="+1234567890" className="w-full px-6 py-4 bg-[#09090b] border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-white/20 outline-none transition-all placeholder:text-white/20 text-white" />
+                                            </div>
+                                            <div className="space-y-3">
+                                                <label className="text-[10px] font-bold tracking-[0.2em] uppercase text-white/50">Alert Preference</label>
+                                                <select 
+                                                    value={formData.alertPreference} 
+                                                    onChange={(e) => setFormData({ ...formData, alertPreference: e.target.value })}
+                                                    className="w-full px-6 py-4 bg-[#09090b] border border-white/5 rounded-2xl text-[10px] font-bold uppercase tracking-[0.2em] focus:border-white/20 outline-none transition-all text-white appearance-none cursor-pointer"
+                                                >
+                                                    <option value="email">Email Only</option>
+                                                    <option value="whatsapp">WhatsApp Only</option>
+                                                    <option value="both">Both Email & WhatsApp</option>
+                                                </select>
                                             </div>
                                         </div>
                                         <div className="space-y-3">

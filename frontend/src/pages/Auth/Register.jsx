@@ -1,4 +1,4 @@
-﻿import React, { useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Mail, Lock, User, ArrowRight, Loader2, Eye, EyeOff } from "lucide-react";
@@ -19,6 +19,7 @@ export default function Register() {
 
     const navigate = useNavigate();
     const setUser = useStore((state) => state.setUser);
+    const setProfilesFromDb = useStore((state) => state.setProfilesFromDb);
     const API_URL = BACKEND_URL;
 
     const handleChange = (e) => {
@@ -49,7 +50,7 @@ export default function Register() {
 
         setIsLoading(true);
         try {
-            const res = await fetch($/api/auth/register, {
+            const res = await fetch(`${API_URL}/api/auth/register`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
@@ -73,6 +74,9 @@ export default function Register() {
             };
             localStorage.setItem("user", JSON.stringify(userObj));
             setUser(userObj);
+            if (data.user.profiles) {
+                setProfilesFromDb(data.user.profiles);
+            }
             toast.success("Account created successfully!");
             navigate("/dashboard");
         } catch (err) {
@@ -83,36 +87,36 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-gradient-to-b from-white to-gray-50 flex flex-col md:flex-row text-gray-900 selection:bg-orange-400 selection:text-white">
-            <div className="w-full md:w-5/12 bg-gradient-to-b from-white via-gray-50 to-gray-100 border-r border-gray-200 flex flex-col p-12 lg:p-16 justify-between relative overflow-hidden">
+        <div className="min-h-screen bg-[#09090b] text-[#fafafa] flex flex-col md:flex-row selection:bg-[#4BB8FA]/20 selection:text-[#4BB8FA] font-sans antialiased overflow-x-hidden">
+            <div className="w-full md:w-5/12 bg-[#121214] border-r border-zinc-800/80 flex flex-col p-12 lg:p-16 justify-between relative overflow-hidden">
                 <div className="relative z-10">
-                    <Link to="/" className="flex items-center gap-2 mb-16">
-                        <div className="w-8 h-8 bg-gradient-to-br from-orange-500 to-orange-600 text-white rounded-lg flex items-center justify-center text-xs font-bold shadow-lg shadow-orange-500/20">
+                    <Link to="/" className="flex items-center gap-3 mb-16">
+                        <div className="w-10 h-10 bg-gradient-to-br from-[#4BB8FA] to-[#0F9BF2] text-black rounded-xl flex items-center justify-center text-base font-bold shadow-sm">
                             CE
                         </div>
-                        <span className="text-lg tracking-tight font-bold text-gray-900">Code<span className="text-orange-500">Events</span></span>
+                        <span className="text-xl tracking-tight font-semibold text-white">Code<span className="text-[#4BB8FA]">Events</span></span>
                     </Link>
 
-                    <h1 className="text-4xl font-bold tracking-tight text-gray-900 mb-6 leading-tight">
+                    <h1 className="text-4xl font-extrabold tracking-tight text-white mb-6 leading-[1.1]">
                         Join CodeEvents
                     </h1>
 
-                    <p className="text-gray-600 font-normal max-w-xs leading-relaxed text-sm">
+                    <p className="text-zinc-400 font-normal max-w-xs leading-relaxed text-sm">
                         Create an account to participate in coding contests, track your progress, and master competitive programming.
                     </p>
                 </div>
 
                 <div className="flex items-center gap-2 relative z-10">
-                    <div className="w-2 h-2 bg-orange-500 rounded-full"></div>
-                    <span className="text-xs font-medium text-gray-500">Secure Registration</span>
+                    <div className="w-2 h-2 bg-[#4BB8FA] rounded-full"></div>
+                    <span className="text-xs font-medium text-zinc-500">Secure Registration</span>
                 </div>
 
                 {/* Visual Accent */}
-                <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
-                <div className="absolute -top-40 -left-40 w-80 h-80 bg-orange-400/5 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#4BB8FA]/10 rounded-full blur-3xl pointer-events-none" />
+                <div className="absolute -top-40 -left-40 w-80 h-80 bg-[#0F9BF2]/10 rounded-full blur-3xl pointer-events-none" />
             </div>
 
-            <div className="w-full md:w-7/12 flex items-center justify-center p-12 lg:p-24 bg-gray-50/50">
+            <div className="w-full md:w-7/12 flex items-center justify-center p-12 lg:p-24 bg-[#09090b]">
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
@@ -120,57 +124,57 @@ export default function Register() {
                     className="w-full max-w-md space-y-8"
                 >
                     <div className="space-y-2">
-                        <h2 className="text-3xl font-bold text-gray-900">Sign up</h2>
-                        <p className="text-gray-600 text-sm">Create your account to get started</p>
+                        <h2 className="text-3xl font-extrabold text-white">Sign up</h2>
+                        <p className="text-zinc-400 text-sm">Create your account to get started</p>
                     </div>
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold tracking-wide uppercase text-gray-600">Full Name</label>
+                            <label className="text-xs font-bold tracking-wider uppercase text-zinc-500">Full Name</label>
                             <div className="relative">
-                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={18} />
                                 <input
                                     type="text"
                                     name="name"
                                     value={formData.name}
                                     onChange={handleChange}
-                                    className="input-minimal pl-10 bg-white border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 text-gray-900 placeholder:text-gray-400 w-full rounded-lg transition-colors"
+                                    className="pl-10 bg-zinc-900 border border-zinc-800 focus:border-[#4BB8FA]/50 focus:ring-1 focus:ring-[#4BB8FA]/50 text-white placeholder:text-zinc-500 w-full rounded-xl py-3 transition-colors outline-none"
                                     placeholder="John Doe"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold tracking-wide uppercase text-gray-600">Email Address</label>
+                            <label className="text-xs font-bold tracking-wider uppercase text-zinc-500">Email Address</label>
                             <div className="relative">
-                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={18} />
                                 <input
                                     type="email"
                                     name="email"
                                     value={formData.email}
                                     onChange={handleChange}
-                                    className="input-minimal pl-10 bg-white border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 text-gray-900 placeholder:text-gray-400 w-full rounded-lg transition-colors"
+                                    className="pl-10 bg-zinc-900 border border-zinc-800 focus:border-[#4BB8FA]/50 focus:ring-1 focus:ring-[#4BB8FA]/50 text-white placeholder:text-zinc-500 w-full rounded-xl py-3 transition-colors outline-none"
                                     placeholder="you@example.com"
                                 />
                             </div>
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold tracking-wide uppercase text-gray-600">Password</label>
+                            <label className="text-xs font-bold tracking-wider uppercase text-zinc-500">Password</label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={18} />
                                 <input
                                     type={showPassword ? "text" : "password"}
                                     name="password"
                                     value={formData.password}
                                     onChange={handleChange}
-                                    className="input-minimal pl-10 pr-10 bg-white border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 text-gray-900 placeholder:text-gray-400 w-full rounded-lg transition-colors"
+                                    className="pl-10 pr-10 bg-zinc-900 border border-zinc-800 focus:border-[#4BB8FA]/50 focus:ring-1 focus:ring-[#4BB8FA]/50 text-white placeholder:text-zinc-500 w-full rounded-xl py-3 transition-colors outline-none"
                                     placeholder="At least 6 characters"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-white cursor-pointer"
                                 >
                                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
@@ -178,21 +182,21 @@ export default function Register() {
                         </div>
 
                         <div className="space-y-2">
-                            <label className="text-xs font-semibold tracking-wide uppercase text-gray-600">Confirm Password</label>
+                            <label className="text-xs font-bold tracking-wider uppercase text-zinc-500">Confirm Password</label>
                             <div className="relative">
-                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500" size={18} />
+                                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-zinc-500" size={18} />
                                 <input
                                     type={showConfirmPassword ? "text" : "password"}
                                     name="confirmPassword"
                                     value={formData.confirmPassword}
                                     onChange={handleChange}
-                                    className="input-minimal pl-10 pr-10 bg-white border border-gray-300 focus:border-orange-500 focus:ring-2 focus:ring-orange-200 text-gray-900 placeholder:text-gray-400 w-full rounded-lg transition-colors"
+                                    className="pl-10 pr-10 bg-zinc-900 border border-zinc-800 focus:border-[#4BB8FA]/50 focus:ring-1 focus:ring-[#4BB8FA]/50 text-white placeholder:text-zinc-500 w-full rounded-xl py-3 transition-colors outline-none"
                                     placeholder="Confirm your password"
                                 />
                                 <button
                                     type="button"
                                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 text-zinc-500 hover:text-white cursor-pointer"
                                 >
                                     {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                                 </button>
@@ -202,10 +206,10 @@ export default function Register() {
                         <button
                             type="submit"
                             disabled={isLoading}
-                            className="w-full py-3 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-lg text-sm transition-all flex items-center justify-center gap-2 shadow-lg shadow-orange-500/30 disabled:opacity-70"
+                            className="w-full py-3 bg-white hover:bg-[#4BB8FA] text-black font-semibold rounded-full text-sm transition-all duration-300 flex items-center justify-center gap-2 shadow-sm hover:shadow-md disabled:opacity-70 cursor-pointer"
                         >
                             {isLoading ? (
-                                <Loader2 className="animate-spin" size={18} />
+                                <Loader2 className="animate-spin text-black" size={18} />
                             ) : (
                                 <>
                                     Create Account <ArrowRight size={16} />
@@ -214,10 +218,10 @@ export default function Register() {
                         </button>
                     </form>
 
-                    <div className="pt-6 border-t border-gray-200 text-center">
-                        <p className="text-sm text-gray-600">
+                    <div className="pt-6 border-t border-zinc-800/80 text-center">
+                        <p className="text-sm text-zinc-400">
                             Already have an account?{" "}
-                            <Link to="/login" className="text-orange-500 font-semibold hover:text-orange-600 transition-colors">
+                            <Link to="/login" className="text-[#4BB8FA] font-semibold hover:text-white transition-colors">
                                 Sign in
                             </Link>
                         </p>
